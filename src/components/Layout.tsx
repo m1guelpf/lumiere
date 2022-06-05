@@ -13,7 +13,7 @@ const Layout: FC<{ children: ReactNode }> = ({ children }) => {
 			<Meta />
 			<Toaster position="top-center" />
 			<nav className="py-2 shadow">
-				<div className="container mx-auto flex items-center justify-between">
+				<div className="container mx-auto flex items-center justify-between px-4 md:px-0">
 					<div className="flex items-center justify-center">
 						<Link href="/">
 							<a className="text-red-400 tracking-tighter flex items-center space-x-2">
@@ -22,7 +22,7 @@ const Layout: FC<{ children: ReactNode }> = ({ children }) => {
 							</a>
 						</Link>
 					</div>
-					<div className="flex-1 max-w-2xl">
+					<div className="hidden md:block flex-1 max-w-2xl">
 						<form className="relative">
 							<input
 								type="search"
