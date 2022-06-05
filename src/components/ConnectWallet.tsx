@@ -1,4 +1,4 @@
-import { useAccount } from 'wagmi'
+import { useAccount, useNetwork } from 'wagmi'
 import LensAvatar from './LensAvatar'
 import { FC, useEffect } from 'react'
 import useLogin from '@/hooks/lens/useLogin'
@@ -8,15 +8,16 @@ import { CubeTransparentIcon, RefreshIcon, UserCircleIcon } from '@heroicons/rea
 
 const ConnectWallet: FC = () => {
 	const { login } = useLogin()
+	const { activeChain } = useNetwork()
 	const { profile, isAuthenticated } = useProfile()
 	const { data: account } = useAccount()
 
 	useEffect(() => {
-		if (!account) return
+		if (!account || activeChain?.unsupported) return
 
 		login()
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [account])
+	}, [account, activeChain])
 
 	return (
 		<ConnectButton.Custom>
