@@ -9,7 +9,7 @@ import { SearchIcon, VideoCameraIcon } from '@heroicons/react/solid'
 
 const Layout: FC<{ children: ReactNode }> = ({ children }) => {
 	return (
-		<div>
+		<div className="min-h-screen flex flex-col">
 			<Meta />
 			<Toaster position="top-center" />
 			<nav className="py-2 shadow">
@@ -26,11 +26,11 @@ const Layout: FC<{ children: ReactNode }> = ({ children }) => {
 						<form className="relative">
 							<input
 								type="search"
-								className="h-8 p-4 text-sm w-full border rounded-lg focus:outline-none"
+								className="h-8 p-4 text-sm w-full border border-gray-200 rounded-lg focus:outline-none"
 								placeholder="Search"
 							/>
-							<button className="flex items-center bg-gray-100 hover:bg-gray-200 absolute right-0 inset-y-0 border px-6 rounded-r-lg">
-								<SearchIcon className="w-4 h-4 text-gray-600" />
+							<button className="flex items-center border-gray-200 bg-gray-100 hover:bg-red-400 hover:border-red-200 absolute right-0 inset-y-0 border px-6 rounded-r-lg transition group">
+								<SearchIcon className="w-4 h-4 text-gray-600 group-hover:text-red-50" />
 							</button>
 						</form>
 					</div>
@@ -49,7 +49,7 @@ const Layout: FC<{ children: ReactNode }> = ({ children }) => {
 					</div>
 				</div>
 			</nav>
-			<main>{children}</main>
+			<main className="flex-1 flex flex-col">{children}</main>
 		</div>
 	)
 }

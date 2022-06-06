@@ -40,6 +40,11 @@ const GET_USER_PUBLICATIONS = gql`
 		name
 		description
 		content
+		cover {
+			original {
+				...MediaFields
+			}
+		}
 		media {
 			original {
 				...MediaFields

@@ -1,7 +1,8 @@
-import { useAccount, useNetwork } from 'wagmi'
+import Link from 'next/link'
 import LensAvatar from './LensAvatar'
 import { FC, useEffect } from 'react'
 import useLogin from '@/hooks/lens/useLogin'
+import { useAccount, useNetwork } from 'wagmi'
 import { useProfile } from '@/context/ProfileContext'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { CubeTransparentIcon, RefreshIcon, UserCircleIcon } from '@heroicons/react/outline'
@@ -21,7 +22,7 @@ const ConnectWallet: FC = () => {
 
 	return (
 		<ConnectButton.Custom>
-			{({ account, chain, openAccountModal, openChainModal, openConnectModal, mounted }) => {
+			{({ account, chain, openChainModal, openConnectModal, mounted }) => {
 				return (
 					<div className={mounted ? '' : 'opacity-0 pointer-events-none select-none'} aria-hidden={!mounted}>
 						{(() => {
@@ -62,46 +63,11 @@ const ConnectWallet: FC = () => {
 							}
 
 							return (
-								<button className="flex items-center justify-center">
-									<LensAvatar profile={profile} width={32} height={32} />
-								</button>
-							)
-
-							return (
-								<div style={{ display: 'flex', gap: 12 }}>
-									<button
-										onClick={openChainModal}
-										style={{ display: 'flex', alignItems: 'center' }}
-										type="button"
-									>
-										{chain.hasIcon && (
-											<div
-												style={{
-													background: chain.iconBackground,
-													width: 12,
-													height: 12,
-													borderRadius: 999,
-													overflow: 'hidden',
-													marginRight: 4,
-												}}
-											>
-												{chain.iconUrl && (
-													<img
-														alt={chain.name ?? 'Chain icon'}
-														src={chain.iconUrl}
-														style={{ width: 12, height: 12 }}
-													/>
-												)}
-											</div>
-										)}
-										{chain.name}
-									</button>
-
-									<button onClick={openAccountModal} type="button">
-										{account.displayName}
-										{account.displayBalance ? ` (${account.displayBalance})` : ''}
-									</button>
-								</div>
+								<Link href={`/channel/${profile?.handle}`}>
+									<a className="flex items-center justify-center">
+										<LensAvatar profile={profile} width={32} height={32} />
+									</a>
+								</Link>
 							)
 						})()}
 					</div>

@@ -19,10 +19,7 @@ const REFRESH_AUTHENTICATION_MUTATION = `
     }
   `
 
-const httpLink = new HttpLink({
-	uri: API_URL,
-	fetch,
-})
+const httpLink = new HttpLink({ uri: API_URL, fetch })
 
 const authLink = new ApolloLink((operation, forward) => {
 	const accessToken = Cookies.get('accessToken')
