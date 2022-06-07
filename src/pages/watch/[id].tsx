@@ -76,7 +76,7 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 								<Link href={`/channel/${video?.profile?.handle}`}>
 									<a className="flex items-center space-x-1">
 										<p className="font-medium">
-											{video?.profile?.name ?? <Skeleton width={200} />}
+											{video?.profile?.name ?? video?.profile?.handle ?? <Skeleton width={200} />}
 										</p>
 										<BadgeCheckIcon className="w-4 h-4 text-gray-600" />
 									</a>

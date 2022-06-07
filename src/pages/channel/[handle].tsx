@@ -77,11 +77,11 @@ const ChannelPage: FC<{ profile: Profile }> = ({ profile }) => {
 							<LensAvatar profile={profile} className="rounded-full" width={80} height={80} />
 							<div className="space-y-1">
 								<div className="flex items-baseline space-x-1">
-									<p className="text-2xl">{profile?.name ?? <Skeleton />}</p>
+									<p className="text-2xl">{profile?.name ?? profile?.handle ?? <Skeleton />}</p>
 									<BadgeCheckIcon className="w-4 h-4 text-gray-600" />
 								</div>
 								<p className="text-xs md:text-sm max-w-prose text-gray-600">
-									{profile?.bio ?? <Skeleton count={2} width={230} />}
+									{profile ? profile.bio : <Skeleton count={2} width={230} />}
 								</p>
 							</div>
 						</div>
