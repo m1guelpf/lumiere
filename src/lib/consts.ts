@@ -1,5 +1,5 @@
-export const APP_ID = 'obscura'
-export const APP_NAME = 'Obscura'
+export const APP_ID = 'lumiere'
+export const APP_NAME = 'Lumiere'
 export const ERROR_MESSAGE = 'Something went wrong! Please try again'
 
 export const IS_MAINNET = process.env.NODE_ENV == 'production'

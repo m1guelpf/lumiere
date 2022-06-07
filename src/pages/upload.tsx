@@ -60,7 +60,7 @@ const UploadPage: FC = () => {
 		<Layout>
 			<div className="container mx-auto py-12 px-4 md:px-0">
 				<div>
-					<h3 className="text-2xl leading-6 font-medium text-gray-900">Upload to Obscura</h3>
+					<h3 className="text-2xl leading-6 font-medium text-gray-900">Upload to Lumiere</h3>
 					<p className="mt-2 text-sm text-gray-500">
 						Uploaded videos will be visible on your profile, search and explore pages. Other Lens-powered
 						sites may choose to show them as well.

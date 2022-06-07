@@ -1,4 +1,4 @@
-# Obscura: Web3 Video
+# Lumiere: Web3 Video
 
 > A YouTube-like video social network, powered by Lens Protocol
 
