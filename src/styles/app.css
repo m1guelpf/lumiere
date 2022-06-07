@@ -1,0 +1,9 @@
+@import "tailwindcss/tailwind.css";
+@import "@vime/core/themes/default.css";
+@import "@rainbow-me/rainbowkit/styles.css";
+@import "react-loading-skeleton/dist/skeleton.css";
+
+vm-player {
+    --vm-slider-value-color: theme('colors.red.500');
+    --vm-player-border-radius: 0px;
+  }

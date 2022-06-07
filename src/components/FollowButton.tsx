@@ -17,7 +17,7 @@ const FollowButton: FC<{ profileId: string }> = ({ profileId }) => {
 		return (
 			<button
 				onClick={followProfile}
-				className="px-3 py-2 bg-red-600 uppercase text-red-50 font-medium text-sm rounded-lg"
+				className="px-3 py-2 bg-red-600 uppercase text-red-50 font-medium text-sm rounded-md"
 			>
 				Subscribe
 			</button>
@@ -27,7 +27,7 @@ const FollowButton: FC<{ profileId: string }> = ({ profileId }) => {
 	return (
 		<button
 			onClick={unfollowProfile}
-			className="px-3 py-2 bg-gray-300 uppercase text-gray-600 font-medium text-sm rounded-lg"
+			className="px-3 py-2 bg-gray-300 uppercase text-gray-600 font-medium text-sm rounded-md"
 		>
 			Subscribed
 		</button>

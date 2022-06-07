@@ -6,19 +6,21 @@ import { Toaster } from 'react-hot-toast'
 import ConnectWallet from './ConnectWallet'
 import { BellIcon, UploadIcon } from '@heroicons/react/outline'
 import { SearchIcon, VideoCameraIcon } from '@heroicons/react/solid'
+import { useProfile } from '@/context/ProfileContext'
 
 const Layout: FC<{ children: ReactNode }> = ({ children }) => {
+	const { isAuthenticated } = useProfile()
 	return (
 		<div className="min-h-screen flex flex-col">
 			<Meta />
 			<Toaster position="top-center" />
 			<nav className="py-2 shadow">
-				<div className="container mx-auto flex items-center justify-between px-4 md:px-0">
+				<div className="flex items-center justify-between px-4 lg:px-6">
 					<div className="flex items-center justify-center">
 						<Link href="/">
 							<a className="text-red-400 tracking-tighter flex items-center space-x-2">
 								<VideoCameraIcon className="w-6 h-6 text-red-500" />
-								<h1 className="text-black font-bold tracking-tighter">{APP_NAME}</h1>
+								<h1 className="text-black font-bold tracking-tighter text-lg">{APP_NAME}</h1>
 							</a>
 						</Link>
 					</div>
@@ -36,14 +38,18 @@ const Layout: FC<{ children: ReactNode }> = ({ children }) => {
 					</div>
 					<div>
 						<div className="flex items-center justify-end space-x-6">
-							<Link href="/upload">
-								<a>
-									<UploadIcon className="w-6 h-6" />
-								</a>
-							</Link>
-							<button>
-								<BellIcon className="w-6 h-6" />
-							</button>
+							{isAuthenticated && (
+								<>
+									<Link href="/upload">
+										<a>
+											<UploadIcon className="w-6 h-6" />
+										</a>
+									</Link>
+									<button>
+										<BellIcon className="w-6 h-6" />
+									</button>
+								</>
+							)}
 							<ConnectWallet />
 						</div>
 					</div>

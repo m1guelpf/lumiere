@@ -1,15 +1,19 @@
 import { FC, useMemo } from 'react'
-import { GetStaticProps } from 'next'
 import Layout from '@/components/Layout'
 import { nodeClient } from '@/lib/apollo'
+import { useQuery } from '@apollo/client'
+import Skeleton from 'react-loading-skeleton'
 import VideoCard from '@/components/VideoCard'
 import LensAvatar from '@/components/LensAvatar'
 import LensBanner from '@/components/LensBanner'
 import { Post, Profile, Query } from '@/types/lens'
 import FollowButton from '@/components/FollowButton'
+import { GetStaticPaths, GetStaticProps } from 'next'
 import { GlobeAltIcon } from '@heroicons/react/outline'
 import { BadgeCheckIcon } from '@heroicons/react/solid'
+import TwitterIcon from '@/components/Icons/TwitterIcon'
 import GET_PROFILE from '@/graphql/profiles/get-profile'
+import GET_USER_PUBLICATIONS from '@/graphql/publications/get-user-publications'
 
 const ChannelPage: FC<{ profile: Profile }> = ({ profile }) => {
 	const { data: videoData, loading: loadingVideos } = useQuery<{ videos: Query['publications'] }>(
@@ -107,13 +111,6 @@ const ChannelPage: FC<{ profile: Profile }> = ({ profile }) => {
 		</Layout>
 	)
 }
-
-// You should use getStaticPaths if you’re statically pre-rendering pages that use dynamic routes
-import { GetStaticPaths } from 'next'
-import Skeleton from 'react-loading-skeleton'
-import { useQuery } from '@apollo/client'
-import GET_USER_PUBLICATIONS from '@/graphql/publications/get-user-publications'
-import TwitterIcon from '@/components/Icons/TwitterIcon'
 
 export const getStaticPaths: GetStaticPaths = async () => {
 	return {
