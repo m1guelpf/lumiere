@@ -20,7 +20,7 @@ export const normalizeUrl = (url: string): string => {
 	const parsed = new URL(url)
 
 	if (parsed.protocol == 'ipfs:') {
-		return `https://ipfs.infura.io/ipfs/${parsed.hostname != '' ? parsed.hostname : parsed.pathname.slice(2)}`
+		return `https://dweb.link/ipfs/${parsed.hostname != '' ? parsed.hostname : parsed.pathname.slice(2)}`
 	}
 
 	return url

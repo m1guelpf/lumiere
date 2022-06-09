@@ -33,23 +33,27 @@ const LensVideo: FC<{ video: Maybe<Post> }> = ({ video }) => {
 	const source = getVideo(video?.metadata?.media ?? [])
 	const posterImg = getImageUrl(video?.metadata?.media ?? [])
 
-	// (very) ugly hack to get the vime to the size we want on big screens
+	// ugly hack to get vime to the size we want on big screens
 	useEffect(() => {
 		requestAnimationFrame(() => {
-			// if (!window.matchMedia('(min-width: 1024px)')) return
+			const el = ref.current.shadowRoot.querySelector('.player.video') as HTMLDivElement
 
-			const sheet = new CSSStyleSheet()
-			sheet.insertRule('.player.video { width: 100%; height: 100%; padding-bottom: 0% !important; }')
-
-			// @ts-ignore
-			ref.current.shadowRoot.adoptedStyleSheets = [sheet]
+			el.style.width = '100%'
+			el.style.height = '100%'
+			el.style.paddingBottom = '0%'
 		})
 	}, [])
 
 	return (
 		<div className="relative w-full max-h-[calc(100vh_-_169px)] min-h-[400px] h-[56.25vw] flex bg-black">
 			<Player ref={ref}>
-				<Video crossOrigin="anonymous" poster={posterImg} autoPiP mediaTitle={video?.metadata?.name}>
+				<Video
+					crossOrigin="anonymous"
+					preload="metadata"
+					poster={posterImg}
+					autoPiP
+					mediaTitle={video?.metadata?.name}
+				>
 					{source && <source data-src={source.url} type={source.mimeType} />}
 				</Video>
 				<DefaultUi noControls>
