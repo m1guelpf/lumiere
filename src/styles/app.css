@@ -4,6 +4,8 @@
 @import "react-loading-skeleton/dist/skeleton.css";
 
 vm-player {
+    @apply flex-1;
+
     --vm-slider-value-color: theme('colors.red.500');
     --vm-player-border-radius: 0px;
   }

@@ -11,7 +11,7 @@ import { useProfile } from '@/context/ProfileContext'
 const Layout: FC<{ children: ReactNode }> = ({ children }) => {
 	const { isAuthenticated } = useProfile()
 	return (
-		<div className="min-h-screen flex flex-col">
+		<div className="min-h-screen flex flex-col overflow-hidden">
 			<Meta />
 			<Toaster position="top-center" />
 			<nav className="py-2 shadow">

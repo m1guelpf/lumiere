@@ -1,32 +1,29 @@
-import { FC, Suspense } from 'react'
+import { FC } from 'react'
+import Link from 'next/link'
+import format from 'date-fns/format'
+import { toast } from 'react-hot-toast'
+import Layout from '@/components/Layout'
 import { nodeClient } from '@/lib/apollo'
 import { Maybe, Post } from '@/types/lens'
-import { GetStaticPaths, GetStaticProps } from 'next'
-import GET_PUBLICATION from '@/graphql/publications/get-publication'
-import Layout from '@/components/Layout'
 import Skeleton from 'react-loading-skeleton'
-import { LensVideoFallback } from '@/components/LensVideo'
-import { SaveAsIcon, ShareIcon, SwitchHorizontalIcon } from '@heroicons/react/outline'
-import dynamic from 'next/dynamic'
-import format from 'date-fns/format'
 import LensAvatar from '@/components/LensAvatar'
-import { BadgeCheckIcon } from '@heroicons/react/solid'
-import Link from 'next/link'
 import FollowButton from '@/components/FollowButton'
-import { toast } from 'react-hot-toast'
-const LensVideo = dynamic(() => import('@/components/LensVideo'), { ssr: false })
+import { GetStaticPaths, GetStaticProps } from 'next'
+import { BadgeCheckIcon } from '@heroicons/react/solid'
+import { LensVideoRenderer } from '@/components/LensVideo'
+import GET_PUBLICATION from '@/graphql/publications/get-publication'
+import LensVideoDescription from '@/components/LensVideoDescription'
+import { SaveAsIcon, ShareIcon, SwitchHorizontalIcon } from '@heroicons/react/outline'
 
 const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 	return (
 		<Layout>
 			<div className="pb-10">
-				<Suspense fallback={<LensVideoFallback video={video} />}>
-					<LensVideo video={video} />
-				</Suspense>
+				<LensVideoRenderer video={video} />
 				<div className="mx-6 mt-5 pb-2 border-b">
 					<div>
 						<h2 className="font-medium text-lg break-words">
-							{video?.metadata?.name ?? <Skeleton width={500} />}
+							{video?.metadata?.name ?? <Skeleton width={380} />}
 						</h2>
 						<div className="flex items-center justify-between text-gray-500">
 							<p className="text-sm">
@@ -76,7 +73,7 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 								<Link href={`/channel/${video?.profile?.handle}`}>
 									<a className="flex items-center space-x-1">
 										<p className="font-medium">
-											{video?.profile?.name ?? video?.profile?.handle ?? <Skeleton width={200} />}
+											{video?.profile?.name ?? video?.profile?.handle ?? <Skeleton width={150} />}
 										</p>
 										<BadgeCheckIcon className="w-4 h-4 text-gray-600" />
 									</a>
@@ -91,8 +88,15 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 								<FollowButton profileId={video?.profile?.id} />
 							</div>
 						</div>
-						<div className="">{video?.metadata?.content ?? <Skeleton count={3} width={500} />}</div>
+						<LensVideoDescription
+							className="hidden md:block"
+							description={video?.metadata?.description}
+							loading={!video}
+						/>
 					</div>
+				</div>
+				<div className="md:hidden mx-6 mt-4">
+					<LensVideoDescription description={video?.metadata?.description} loading={!video} />
 				</div>
 			</div>
 		</Layout>
