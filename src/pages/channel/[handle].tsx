@@ -6,7 +6,7 @@ import Skeleton from 'react-loading-skeleton'
 import VideoCard from '@/components/VideoCard'
 import LensAvatar from '@/components/LensAvatar'
 import LensBanner from '@/components/LensBanner'
-import { Post, Profile, Query } from '@/types/lens'
+import { Post, Profile, Query, SingleProfileQueryRequest } from '@/types/lens'
 import FollowButton from '@/components/FollowButton'
 import { GetStaticPaths, GetStaticProps } from 'next'
 import { GlobeAltIcon } from '@heroicons/react/outline'
@@ -121,15 +121,16 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = async ({ params: { handle } }) => {
 	const {
-		data: {
-			profiles: { items: profiles },
-		},
-	} = await nodeClient.query<{ profiles: Query['profiles'] }>({ query: GET_PROFILE, variables: { handle } })
+		data: { profile },
+	} = await nodeClient.query<{ profile: Query['profile'] }, SingleProfileQueryRequest>({
+		query: GET_PROFILE,
+		variables: { handle },
+	})
 
-	if (profiles.length == 0) return { notFound: true }
+	if (!profile) return { notFound: true }
 
 	return {
-		props: { profile: profiles[0] },
+		props: { profile },
 	}
 }
 

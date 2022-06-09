@@ -205,6 +205,8 @@ export type Comment = {
 	createdAt: Scalars['DateTime']
 	/** This will bring back the first comment of a comment and only be defined if using `publication` query and `commentOf` */
 	firstComment?: Maybe<Comment>
+	/** If the publication has been hidden if it has then the content and media is not available */
+	hidden: Scalars['Boolean']
 	/** The internal publication id */
 	id: Scalars['InternalPublicationId']
 	/** The top level post/mirror this comment lives on */
@@ -1299,6 +1301,8 @@ export type Mirror = {
 	collectNftAddress?: Maybe<Scalars['ContractAddress']>
 	/** The date the post was created on */
 	createdAt: Scalars['DateTime']
+	/** If the publication has been hidden if it has then the content and media is not available */
+	hidden: Scalars['Boolean']
 	/** The internal publication id */
 	id: Scalars['InternalPublicationId']
 	/** The metadata for the post */
@@ -1713,6 +1717,8 @@ export type Post = {
 	collectedBy?: Maybe<Wallet>
 	/** The date the post was created on */
 	createdAt: Scalars['DateTime']
+	/** If the publication has been hidden if it has then the content and media is not available */
+	hidden: Scalars['Boolean']
 	/** The internal publication id */
 	id: Scalars['InternalPublicationId']
 	/** The metadata for the post */
@@ -1740,6 +1746,8 @@ export type Profile = {
 	dispatcher?: Maybe<Dispatcher>
 	/** The follow module */
 	followModule?: Maybe<FollowModule>
+	/** Follow nft address */
+	followNftAddress?: Maybe<Scalars['ContractAddress']>
 	/** The profile handle */
 	handle: Scalars['Handle']
 	/** The profile id */
@@ -1987,6 +1995,7 @@ export type Query = {
 	notifications: PaginatedNotificationResult
 	pendingApprovalFollows: PendingApproveFollowsResult
 	ping: Scalars['String']
+	profile?: Maybe<Profile>
 	profileRevenue: ProfileRevenueResult
 	profiles: PaginatedProfileResult
 	publication?: Maybe<Publication>
@@ -2070,6 +2079,10 @@ export type QueryNotificationsArgs = {
 
 export type QueryPendingApprovalFollowsArgs = {
 	request: PendingApprovalFollowsRequest
+}
+
+export type QueryProfileArgs = {
+	request: SingleProfileQueryRequest
 }
 
 export type QueryProfileRevenueArgs = {
@@ -2260,6 +2273,13 @@ export type SignedAuthChallenge = {
 	signature: Scalars['Signature']
 }
 
+export type SingleProfileQueryRequest = {
+	/** The handle for the profile */
+	handle?: InputMaybe<Scalars['Handle']>
+	/** The profile id */
+	profileId?: InputMaybe<Scalars['ProfileId']>
+}
+
 export type TimedFeeCollectModuleParams = {
 	/** The collect module amount info */
 	amount: ModuleFeeAmountParams
@@ -2330,7 +2350,7 @@ export type TransactionReceipt = {
 	logs: Array<Log>
 	logsBloom: Scalars['String']
 	root?: Maybe<Scalars['String']>
-	status: Scalars['Int']
+	status?: Maybe<Scalars['Int']>
 	to?: Maybe<Scalars['EthereumAddress']>
 	transactionHash: Scalars['TxHash']
 	transactionIndex: Scalars['Int']
