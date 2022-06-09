@@ -14,7 +14,6 @@
 		"@headlessui/react": "^1.6.4",
 		"@heroicons/react": "^1.0.6",
 		"@rainbow-me/rainbowkit": "^0.1.1",
-		"@rajesh896/video-thumbnails-generator": "^2.3.9",
 		"@tailwindcss/aspect-ratio": "^0.4.0",
 		"@tailwindcss/forms": "^0.5.2",
 		"@vime/core": "^5.3.1",

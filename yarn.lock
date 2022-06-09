@@ -1639,11 +1639,6 @@
     qrcode "1.5.0"
     react-remove-scroll "2.5.3"
 
-"@rajesh896/video-thumbnails-generator@^2.3.9":
-  version "2.3.9"
-  resolved "https://registry.yarnpkg.com/@rajesh896/video-thumbnails-generator/-/video-thumbnails-generator-2.3.9.tgz#2d3b0a2451ab33a4f580ba7599f616804da39a7c"
-  integrity sha512-tV775KsZpyhaXMG/z+APNBL8bpGSaYgvCmELC7k3z0n6rGcFhsDhFFqJkmguiVR83bNLWth8wdFOGkpsBS3Jzw==
-
 "@rushstack/eslint-patch@^1.1.3":
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.3.tgz#6801033be7ff87a6b7cadaf5b337c9f366a3c4b0"

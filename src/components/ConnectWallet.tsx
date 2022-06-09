@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import useOnce from '@/hooks/useOnce'
 import LensAvatar from './LensAvatar'
 import { FC, useEffect } from 'react'
 import useLogin from '@/hooks/lens/useLogin'
@@ -9,16 +10,17 @@ import { CubeTransparentIcon, RefreshIcon, UserCircleIcon } from '@heroicons/rea
 
 const ConnectWallet: FC = () => {
 	const { login } = useLogin()
+	const loginOnce = useOnce(login)
 	const { activeChain } = useNetwork()
 	const { profile, isAuthenticated } = useProfile()
 	const { data: account } = useAccount()
 
 	useEffect(() => {
-		if (!account || activeChain?.unsupported) return
+		if (!account?.address || activeChain?.unsupported) return
 
-		login()
+		loginOnce()
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [account, activeChain])
+	}, [account?.address, activeChain?.unsupported])
 
 	return (
 		<ConnectButton.Custom>

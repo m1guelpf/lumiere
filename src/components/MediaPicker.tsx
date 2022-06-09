@@ -3,9 +3,9 @@ import toast from 'react-hot-toast'
 import { uploadFile } from '@/lib/ipfs'
 import { XIcon } from '@heroicons/react/solid'
 import { classNames, dataURItoFile } from '@/lib/utils'
+import { generateVideoThumbnails } from '@/lib/thumbnails'
 import FileInput, { Props as FileInputProps } from './FileInput'
 import { FC, PropsWithChildren, useEffect, useState } from 'react'
-import { generateVideoThumbnails } from '@rajesh896/video-thumbnails-generator'
 import { CheckCircleIcon, ExclamationIcon, UploadIcon } from '@heroicons/react/outline'
 
 type Image = 'image/jpeg' | 'image/png' | 'image/webp' | 'image/jpeg, image/png, image/webp'
@@ -107,7 +107,7 @@ export const MediaPickerWithThumbnails: FC<ThumbnailsProps> = ({ onThumbnailChan
 	const [uploadProgress, setUploadProgress] = useState<number>(0)
 	const [selectedThumbnail, setSelectedThumbnail] = useState(0)
 	const onUpload = (file: File) => {
-		generateVideoThumbnails(file, 3, '').then(setThumbnails)
+		generateVideoThumbnails(file, 3).then(setThumbnails)
 	}
 
 	useEffect(() => {
@@ -225,7 +225,7 @@ const MediaPicker: FC<Props> = ({
 								? 'border-blue-600'
 								: 'border-gray-200',
 							disabled && 'cursor-not-allowed bg-gray-400',
-							'rounded-xl border-2 overflow-hidden relative transition w-full h-full'
+							'rounded-xl border-2 overflow-hidden relative transition w-full h-full transform-gpu'
 						)}
 					>
 						<div
@@ -412,7 +412,7 @@ const RemoveButton = ({ cover, onClick }: RemoveButtonProps) => {
 		return (
 			<button
 				className={classNames(
-					'flex items-center justify-center cursor-pointer h-12 w-12 rounded-full hover:bg-white/30 hover:bg-gray-100 text-black/60 p-2 transition'
+					'flex items-center justify-center cursor-pointer h-8 w-8 md:h-12 md:w-12 rounded-full bg-white/20 md:bg-translarent hover:bg-white/30 hover:bg-gray-100 text-white/80 md:text-black/60 p-1 md:p-2 m-2 md:m-0 transition'
 				)}
 				onClick={onClick}
 			>

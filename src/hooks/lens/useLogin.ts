@@ -37,8 +37,7 @@ const useLogin = (): {
 		} = await loadChallenge({ variables: { address: accountData?.address } })
 
 		const signature = await signMessage({ message: challenge })
-
-		const tokens = toastOn<{ accessToken: string; refreshToken: string }>(
+		return toastOn<{ accessToken: string; refreshToken: string }>(
 			async () => {
 				const {
 					data: { authenticate: tokens },
@@ -52,8 +51,6 @@ const useLogin = (): {
 			},
 			{ loading: 'Authenticating...', success: 'Signed in!', error: 'Something went wrong! Please try again.' }
 		)
-
-		return tokens
 	}
 
 	const logout = async () => {
