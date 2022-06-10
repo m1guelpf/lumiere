@@ -61,11 +61,14 @@ const authLink = new ApolloLink((operation, forward) => {
 					Cookies.set('accessToken', res?.data?.refresh?.accessToken, COOKIE_CONFIG)
 					Cookies.set('refreshToken', res?.data?.refresh?.refreshToken, COOKIE_CONFIG)
 				})
-				.catch(() =>
+				.catch(() => {
+					Cookies.remove('accessToken', COOKIE_CONFIG)
+					Cookies.remove('refreshToken', COOKIE_CONFIG)
+
 					toast.error(
 						`Something went wrong when authenticating with Lens! Please log out, log back in, and try again.`
 					)
-				)
+				})
 		}
 
 		return forward(operation)

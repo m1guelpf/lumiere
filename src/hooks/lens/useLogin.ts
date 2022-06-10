@@ -66,6 +66,7 @@ const useLogin = (): {
 		if (!Cookies.get('accessToken') || (!Cookies.get('refreshToken') && accountData?.address)) return
 
 		setAuthenticated(true)
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 	return {

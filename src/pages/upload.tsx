@@ -6,14 +6,21 @@ import Layout from '@/components/Layout'
 import { trimIndentedSpaces } from '@/lib/utils'
 import { useProfile } from '@/context/ProfileContext'
 import useCreatePost from '@/hooks/lens/useCreatePost'
-import { FC, FormEventHandler, useState } from 'react'
+import { FC, FormEventHandler, useEffect, useState } from 'react'
 import { MetadataVersions, VideoMimeTypes } from '@/types/metadata'
 import { MediaPickerWithThumbnails } from '@/components/MediaPicker'
 
 const UploadPage: FC = () => {
 	const router = useRouter()
-	const { profile } = useProfile()
+	const { profile, isAuthenticated } = useProfile()
 	const { createPost } = useCreatePost()
+
+	useEffect(() => {
+		if (isAuthenticated) return
+
+		router.push('/login?next=upload')
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isAuthenticated])
 
 	const [title, setTitle] = useState<string>('')
 	const [videoCID, setVideoCID] = useState<string>(null)

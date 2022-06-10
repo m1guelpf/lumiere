@@ -1,23 +1,24 @@
+import Link from 'next/link'
 import { FC, useMemo } from 'react'
 import { Post } from '@/types/lens'
 import Skeleton from 'react-loading-skeleton'
+import { getImageUrl, includesImage, normalizeUrl } from '@/lib/media'
 import formatDistanceToNowStrict from 'date-fns/formatDistanceToNowStrict'
-import { getImageUrl, includesImage } from '@/lib/media'
-import Link from 'next/link'
 
 const VideoCard: FC<{ post?: Post }> = ({ post }) => {
 	const coverImg = useMemo(() => {
 		if (!post) return
-		if (post.metadata.cover) return post.metadata.cover.original.url
 		if (includesImage(post.metadata.media)) return getImageUrl(post.metadata.media)
+		if (post.metadata.cover) return normalizeUrl(post.metadata.cover.original.url)
 
 		return `https://avatar.tobi.sh/${post.id}.png`
 	}, [post])
+
 	return (
 		<Link href={`/watch/${post?.id}`}>
 			<a className="flex-1 space-y-2">
 				{coverImg ? (
-					<img className="h-44 w-80 bg-cover rounded-lg" src={coverImg} alt="" />
+					<img className="h-44 w-80 bg-cover rounded-lg object-cover" src={coverImg} alt="" />
 				) : (
 					<Skeleton className="!h-44 !w-80" />
 				)}
