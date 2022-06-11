@@ -3,12 +3,12 @@ import Link from 'next/link'
 import toast from 'react-hot-toast'
 import SearchBar from './SearchBar'
 import { FC, ReactNode } from 'react'
-import { APP_NAME } from '@/lib/consts'
 import { Toaster } from 'react-hot-toast'
 import ConnectWallet from './ConnectWallet'
-import { BellIcon, UploadIcon } from '@heroicons/react/outline'
-import { VideoCameraIcon } from '@heroicons/react/solid'
+import { APP_NAME, IS_MAINNET } from '@/lib/consts'
 import { useProfile } from '@/context/ProfileContext'
+import { BellIcon, UploadIcon } from '@heroicons/react/outline'
+import { BeakerIcon, VideoCameraIcon } from '@heroicons/react/solid'
 
 const Layout: FC<{ children: ReactNode }> = ({ children }) => {
 	const { isAuthenticated } = useProfile()
@@ -48,6 +48,24 @@ const Layout: FC<{ children: ReactNode }> = ({ children }) => {
 					</div>
 				</div>
 			</nav>
+			{!IS_MAINNET && (
+				<div className="bg-indigo-50 border-l-4 border-indigo-400 p-4">
+					<div className="flex">
+						<div className="flex-shrink-0">
+							<BeakerIcon className="h-5 w-5 text-indigo-400" aria-hidden="true" />
+						</div>
+						<div className="ml-3">
+							<p className="text-sm text-indigo-700 md:hidden">
+								Lumiere is in test mode. Your content won&apos;t show up when we go live. Test away!
+							</p>
+							<p className="hidden md:inline text-sm text-indigo-700">
+								Lumiere is in test mode. Your content is stored in the Mumbai testnet, and won&apos;t
+								show up when we go live. Test away!
+							</p>
+						</div>
+					</div>
+				</div>
+			)}
 			<main className="flex-1 flex flex-col">{children}</main>
 		</div>
 	)
