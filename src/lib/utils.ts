@@ -1,4 +1,5 @@
 import omitDeep from 'omit-deep'
+import toast from 'react-hot-toast'
 import Autolinker from 'autolinker'
 import copy from 'copy-to-clipboard'
 
@@ -56,7 +57,10 @@ export const linkify = (value: string): string =>
 	})
 
 export const shareLink = (url: string) => {
-	if (!navigator?.canShare?.({ url })) return copy(url)
+	if (!navigator?.canShare?.({ url })) {
+		toast.success('Copied to clipboard!')
+		return copy(url)
+	}
 
 	navigator.share({ url })
 }

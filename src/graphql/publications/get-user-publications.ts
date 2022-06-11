@@ -8,7 +8,7 @@ const GET_USER_PUBLICATIONS = gql`
 				publicationTypes: [POST]
 				limit: 25
 				cursor: $cursor
-				sources: ["lumiere"]
+				sources: ["lumiere", "Lenstube"]
 			}
 		) {
 			items {

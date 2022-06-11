@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { FC, useMemo } from 'react'
 import { Profile } from '@/types/lens'
 import Skeleton from 'react-loading-skeleton'
@@ -12,7 +13,14 @@ const LensBanner: FC<{ profile: Profile; className?: string }> = ({ profile, cla
 	}, [profile])
 
 	return bannerURL ? (
-		<img className={className} src={bannerURL} alt={`${profile?.name ?? profile?.handle}'s banner`} />
+		<div className={className}>
+			<Image
+				layout="fill"
+				objectFit="cover"
+				src={bannerURL}
+				alt={`${profile?.name ?? profile?.handle}'s banner`}
+			/>
+		</div>
 	) : (
 		<Skeleton className={className} />
 	)

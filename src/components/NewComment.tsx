@@ -65,8 +65,10 @@ const NewComment: FC<{ videoId: number; onChange?: () => void }> = ({ videoId, o
 					placeholder="Add a comment…"
 					onChange={event => setComment(event.target.value)}
 					className={classNames(
-						inputExpanded && 'border-black focus:border-black focus:border-b-2 transition-[border]',
-						'w-full border-0 border-gray-200 focus:ring-0 border-b focus:border-gray-400 focus:outline-none'
+						inputExpanded
+							? 'border-black focus:border-black focus:border-b-2 transition-[border]'
+							: 'border-gray-200 focus:border-gray-400',
+						'w-full border-0 focus:ring-0 border-b focus:outline-none'
 					)}
 				/>
 				{inputExpanded && (

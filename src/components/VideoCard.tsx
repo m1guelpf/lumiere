@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { FC, useMemo } from 'react'
+import Image from 'next/image'
 import { Post } from '@/types/lens'
+import { FC, useMemo } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import { getImageUrl, includesImage, normalizeUrl } from '@/lib/media'
 import formatDistanceToNowStrict from 'date-fns/formatDistanceToNowStrict'
@@ -20,7 +21,7 @@ const VideoCard: FC<{ post?: Post }> = ({ post }) => {
 		<Link href={`/watch/${post?.id}`}>
 			<a className="flex-1 space-y-2">
 				{coverImg ? (
-					<img className="h-44 w-80 bg-cover rounded-lg object-cover" src={coverImg} alt="" />
+					<Image height={176} width={320} objectFit="cover" className="rounded-lg" src={coverImg} alt="" />
 				) : (
 					<Skeleton className="!h-44 !w-80" />
 				)}

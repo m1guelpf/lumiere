@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { FC, useMemo } from 'react'
 import { Profile } from '@/types/lens'
 import Skeleton from 'react-loading-skeleton'
@@ -19,7 +20,7 @@ const LensAvatar: FC<{ profile: Profile; width: number; height: number; classNam
 	return (
 		<div className={`relative ${className}`}>
 			{avatarUrl ? (
-				<img
+				<Image
 					src={avatarUrl}
 					alt={profile?.name ?? profile?.handle}
 					width={width}

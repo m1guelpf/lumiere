@@ -34,7 +34,7 @@ const ChannelPage: FC<{ profile: Profile }> = ({ profile }) => {
 	return (
 		<Layout>
 			<div className="relative">
-				<LensBanner className="!h-24 md:!h-60 bg-cover !w-full" profile={profile} />
+				<LensBanner className="!h-24 md:!h-60 object-cover !w-full" profile={profile} />
 				<div className="absolute right-4 md:right-8 bottom-4 md:bottom-6 bg-black/20 rounded-lg px-2 py-1 flex items-center space-x-2 text-white/80">
 					{(() => {
 						const website = profile?.attributes?.find(attr => attr.key == 'website')

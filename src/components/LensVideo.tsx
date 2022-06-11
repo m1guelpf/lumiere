@@ -1,6 +1,6 @@
 import { Maybe, Post } from '@/types/lens'
-import { getImageUrl, getVideo } from '@/lib/media'
 import { FC, useEffect, useRef, useState } from 'react'
+import { getImageUrl, getVideo, normalizeUrl } from '@/lib/media'
 import { DefaultUi, Video, Player, DefaultControls, DefaultSettings, Skeleton } from '@vime/react'
 
 export const LensVideoRenderer: FC<{ video: Maybe<Post> }> = ({ video }) => {
@@ -17,7 +17,9 @@ export const LensVideoRenderer: FC<{ video: Maybe<Post> }> = ({ video }) => {
 
 export const LensVideoFallback: FC<{ video: Maybe<Post> }> = ({ video }) => {
 	const source = getVideo(video?.metadata?.media ?? [])
-	const posterImg = getImageUrl(video?.metadata?.media ?? [])
+	const posterImg = video?.metadata?.cover
+		? normalizeUrl(video.metadata.cover?.original?.url, video.metadata.cover?.original?.mimeType)
+		: getImageUrl(video?.metadata?.media ?? [])
 
 	return (
 		<div className="relative w-full max-h-[calc(100vh_-_169px)] min-h-[400px] h-[56.25vw] bg-black">
@@ -31,7 +33,9 @@ export const LensVideoFallback: FC<{ video: Maybe<Post> }> = ({ video }) => {
 const LensVideo: FC<{ video: Maybe<Post> }> = ({ video }) => {
 	const ref = useRef<HTMLVmPlayerElement>()
 	const source = getVideo(video?.metadata?.media ?? [])
-	const posterImg = getImageUrl(video?.metadata?.media ?? [])
+	const posterImg = video?.metadata?.cover
+		? normalizeUrl(video.metadata.cover?.original?.url, video.metadata.cover?.original?.mimeType)
+		: getImageUrl(video?.metadata?.media ?? [])
 
 	// ugly hack to get vime to the size we want on big screens
 	useEffect(() => {
