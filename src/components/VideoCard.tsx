@@ -9,7 +9,9 @@ const VideoCard: FC<{ post?: Post }> = ({ post }) => {
 	const coverImg = useMemo(() => {
 		if (!post) return
 		if (includesImage(post.metadata.media)) return getImageUrl(post.metadata.media)
-		if (post.metadata.cover) return normalizeUrl(post.metadata.cover.original.url)
+		if (post.metadata.cover) {
+			return normalizeUrl(post.metadata.cover.original.url, post.metadata.cover.original.mimeType)
+		}
 
 		return `https://avatar.tobi.sh/${post.id}.png`
 	}, [post])
