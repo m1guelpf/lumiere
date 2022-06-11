@@ -1,14 +1,17 @@
-import { FC, useMemo } from 'react'
 import Link from 'next/link'
+import { FC, useMemo } from 'react'
 import format from 'date-fns/format'
 import { toast } from 'react-hot-toast'
 import Layout from '@/components/Layout'
 import { useQuery } from '@apollo/client'
 import { nodeClient } from '@/lib/apollo'
+import Spinner from '@/components/Spinner'
 import Skeleton from 'react-loading-skeleton'
 import NewComment from '@/components/NewComment'
 import LensAvatar from '@/components/LensAvatar'
+import { linkify, shareLink } from '@/lib/utils'
 import FollowButton from '@/components/FollowButton'
+import { formatDistanceToNowStrict } from 'date-fns'
 import { GetStaticPaths, GetStaticProps } from 'next'
 import { BadgeCheckIcon } from '@heroicons/react/solid'
 import { LensVideoRenderer } from '@/components/LensVideo'
@@ -71,7 +74,7 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 									</div>
 									<div className="flex items-center space-x-1">
 										<button
-											onClick={() => toast.error('Not implemented yet')}
+											onClick={() => shareLink(window.location.href)}
 											className="hover:bg-gray-100 rounded-full p-2"
 										>
 											<ShareIcon className="w-6 h-6" />
@@ -122,19 +125,53 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 						<LensVideoDescription description={video?.metadata?.description} loading={!video} />
 					</div>
 				</div>
-				<div className="mt-6 mb-8 mx-6">
-					<div className="mb-6">
-						{commentData?.comments && (
-							<p>
-								{commentData.comments.pageInfo.totalCount} Comment
-								{commentData.comments.pageInfo.totalCount == 1 ? '' : 's'}
-							</p>
-						)}
+				{!video || commentsLoading ? (
+					<div className="mt-6 flex items-center justify-center">
+						<Spinner className="w-8 h-8" />
 					</div>
-					<div>
-						<NewComment videoId={video?.id} onChange={refetchComments} />
+				) : (
+					<div className="mx-6">
+						<div className="mt-6 mb-8">
+							<div className="mb-6">
+								{commentData?.comments && (
+									<p>
+										{commentData.comments.pageInfo.totalCount} Comment
+										{commentData.comments.pageInfo.totalCount == 1 ? '' : 's'}
+									</p>
+								)}
+							</div>
+							<div>
+								<NewComment videoId={video?.id} onChange={refetchComments} />
+							</div>
+						</div>
+						<div className="space-y-6">
+							{comments?.map(comment => (
+								<div className="flex items-start space-x-4" key={comment.id}>
+									<LensAvatar profile={comment.profile} width={40} height={40} />
+									<div>
+										<div className="flex items-center space-x-2">
+											<Link href={`/channel/${comment.profile.handle}`}>
+												<a className="font-medium text-black text-sm flex items-center space-x-1">
+													<span>{comment.profile.name ?? comment.profile.handle}</span>
+													<BadgeCheckIcon className="w-3 h-3 text-gray-600" />
+												</a>
+											</Link>
+											<p className="text-xs text-gray-500">
+												{formatDistanceToNowStrict(new Date(comment.createdAt))} ago
+											</p>
+										</div>
+										<div>
+											<p
+												className="text-sm"
+												dangerouslySetInnerHTML={{ __html: linkify(comment.metadata.content) }}
+											/>
+										</div>
+									</div>
+								</div>
+							))}
+						</div>
 					</div>
-				</div>
+				)}
 			</div>
 		</Layout>
 	)

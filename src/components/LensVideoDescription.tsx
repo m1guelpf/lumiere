@@ -1,7 +1,6 @@
-import Autolinker from 'autolinker'
-import { classNames } from '@/lib/utils'
-import { FC, useMemo, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
+import { FC, useMemo, useState } from 'react'
+import { classNames, linkify } from '@/lib/utils'
 
 const LensVideoDescription: FC<{ description: string | null; loading: boolean; className?: string }> = ({
 	description,
@@ -10,24 +9,7 @@ const LensVideoDescription: FC<{ description: string | null; loading: boolean; c
 }) => {
 	const [expandDescription, setExpandDescription] = useState<boolean>(false)
 
-	const processed = useMemo<string>(() => {
-		return Autolinker.link(description, {
-			replaceFn: match => {
-				if (
-					match.getType() == 'mention' &&
-					// @ts-ignore
-					match.getServiceName() == 'tiktok'
-				) {
-					// @ts-ignore
-					return `<a href="https://open.withlens.app/profile/${match.getMention()}" target="_blank" rel="noreferrer" class="underline">@${match.getMention()}</a>`
-				}
-			},
-			mention: 'tiktok',
-			stripPrefix: false,
-			sanitizeHtml: true,
-			className: 'text-blue-500',
-		})
-	}, [description])
+	const processed = useMemo<string>(() => linkify(description), [description])
 
 	if (!description) return null
 
