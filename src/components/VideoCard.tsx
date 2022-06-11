@@ -2,11 +2,12 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Post } from '@/types/lens'
 import { FC, useMemo } from 'react'
+import LensAvatar from './LensAvatar'
 import Skeleton from 'react-loading-skeleton'
 import { getImageUrl, includesImage, normalizeUrl } from '@/lib/media'
 import formatDistanceToNowStrict from 'date-fns/formatDistanceToNowStrict'
 
-const VideoCard: FC<{ post?: Post }> = ({ post }) => {
+const VideoCard: FC<{ post?: Post; expanded?: boolean }> = ({ post, expanded = false }) => {
 	const coverImg = useMemo(() => {
 		if (!post) return
 		if (includesImage(post.metadata.media)) return getImageUrl(post.metadata.media)
@@ -26,16 +27,29 @@ const VideoCard: FC<{ post?: Post }> = ({ post }) => {
 					<Skeleton className="!h-44 !w-80" />
 				)}
 				<div className="space-y-2">
-					<h4 className="text-sm font-medium">{post?.metadata?.name ?? <Skeleton width={250} />}</h4>
-					<div>
-						<p className="font-hairline text-xs text-gray-800">
-							{post ? `${post?.stats?.totalAmountOfCollects} collects` : <Skeleton width={70} inline />} ·{' '}
-							{post ? (
-								`${formatDistanceToNowStrict(new Date(post.createdAt))} ago`
-							) : (
-								<Skeleton width={70} inline />
-							)}
-						</p>
+					<div className="flex items-start space-x-3">
+						{expanded && <LensAvatar width={36} height={36} profile={post?.profile} />}
+						<div>
+							<h4 className="text-sm font-medium">{post?.metadata?.name ?? <Skeleton width={250} />}</h4>
+							<div>
+								{expanded && (
+									<p className="text-xs text-gray-800">{post?.profile?.handle ?? <Skeleton />}</p>
+								)}
+								<p className="font-hairline text-xs text-gray-800">
+									{post ? (
+										`${post?.stats?.totalAmountOfCollects} collects`
+									) : (
+										<Skeleton width={70} inline />
+									)}{' '}
+									·{' '}
+									{post ? (
+										`${formatDistanceToNowStrict(new Date(post.createdAt))} ago`
+									) : (
+										<Skeleton width={70} inline />
+									)}
+								</p>
+							</div>
+						</div>
 					</div>
 				</div>
 			</a>

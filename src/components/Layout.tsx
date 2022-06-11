@@ -49,12 +49,12 @@ const Layout: FC<{ children: ReactNode }> = ({ children }) => {
 				</div>
 			</nav>
 			{!IS_MAINNET && (
-				<div className="bg-indigo-50 border-l-4 border-indigo-400 p-4">
-					<div className="flex">
+				<div className="bg-indigo-50 border-t border-indigo-200 border-b border-l-4 [border-left-color:rgb(129,140,248)] p-4">
+					<div className="flex space-x-3">
 						<div className="flex-shrink-0">
 							<BeakerIcon className="h-5 w-5 text-indigo-400" aria-hidden="true" />
 						</div>
-						<div className="ml-3">
+						<div>
 							<p className="text-sm text-indigo-700 md:hidden">
 								Lumiere is in test mode. Your content won&apos;t show up when we go live. Test away!
 							</p>

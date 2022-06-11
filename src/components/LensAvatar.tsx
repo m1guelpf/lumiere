@@ -18,7 +18,7 @@ const LensAvatar: FC<{ profile: Profile; width: number; height: number; classNam
 	}, [profile])
 
 	return (
-		<div className={`relative ${className}`}>
+		<div className={`relative ${className}`} style={{ width, height }}>
 			{avatarUrl ? (
 				<Image
 					src={avatarUrl}

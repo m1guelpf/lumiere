@@ -23,7 +23,7 @@ export const normalizeUrl = (url: string, mimeType: string): string => {
 	const parsed = new URL(url)
 
 	if (parsed.protocol == 'ipfs:') {
-		return `https://${mimeType.startsWith('video') ? 'dweb.link' : 'ipfs.infura.io'}/ipfs/${
+		return `https://${mimeType?.startsWith('video') ? 'dweb.link' : 'ipfs.infura.io'}/ipfs/${
 			parsed.hostname != '' ? parsed.hostname : parsed.pathname.slice(2)
 		}`
 	}
