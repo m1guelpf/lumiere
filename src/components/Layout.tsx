@@ -25,11 +25,9 @@ const Layout: FC<{ children: ReactNode }> = ({ children }) => {
 			<nav className="py-2 shadow">
 				<div className="flex items-center justify-between px-4 lg:px-6">
 					<div className="flex items-center justify-center">
-						<Link href="/">
-							<a className="text-red-400 tracking-tighter flex items-center space-x-2">
-								<VideoCameraIcon className="w-6 h-6 text-red-500" />
-								<h1 className="text-black font-bold tracking-tighter text-lg">{APP_NAME}</h1>
-							</a>
+						<Link href="/" className="text-red-400 tracking-tighter flex items-center space-x-2">
+							<VideoCameraIcon className="w-6 h-6 text-red-500" />
+							<h1 className="text-black font-bold tracking-tighter text-lg">{APP_NAME}</h1>
 						</Link>
 					</div>
 					<div className="hidden md:block flex-1 max-w-2xl mx-4">
@@ -40,9 +38,7 @@ const Layout: FC<{ children: ReactNode }> = ({ children }) => {
 							{isAuthenticated && (
 								<>
 									<Link href="/upload">
-										<a>
-											<UploadIcon className="w-6 h-6" />
-										</a>
+										<UploadIcon className="w-6 h-6" />
 									</Link>
 									<button onClick={() => toast.error('Not implemented yet')}>
 										<BellIcon className="w-6 h-6" />
@@ -69,29 +65,27 @@ const Layout: FC<{ children: ReactNode }> = ({ children }) => {
 										<Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-20">
 											<Menu.Item>
 												{({ active }) => (
-													<Link href={`/channel/${profile?.handle}`}>
-														<a
-															className={classNames(
-																active ? 'bg-gray-100' : '',
-																'hover:bg-gray-100 block px-4 py-2 text-sm text-gray-700 transition'
-															)}
-														>
-															Your Channel
-														</a>
+													<Link
+														href={`/channel/${profile?.handle}`}
+														className={classNames(
+															active ? 'bg-gray-100' : '',
+															'hover:bg-gray-100 block px-4 py-2 text-sm text-gray-700 transition'
+														)}
+													>
+														Your Channel
 													</Link>
 												)}
 											</Menu.Item>
 											<Menu.Item>
 												{({ active }) => (
-													<Link href="/settings">
-														<a
-															className={classNames(
-																active ? 'bg-gray-100' : '',
-																'hover:bg-gray-100 block px-4 py-2 text-sm text-gray-700 transition'
-															)}
-														>
-															Settings
-														</a>
+													<Link
+														href="/settings"
+														className={classNames(
+															active ? 'bg-gray-100' : '',
+															'hover:bg-gray-100 block px-4 py-2 text-sm text-gray-700 transition'
+														)}
+													>
+														Settings
 													</Link>
 												)}
 											</Menu.Item>

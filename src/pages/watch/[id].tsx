@@ -87,22 +87,19 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 					</div>
 					<div className="flex items-start space-x-4 pt-4">
 						<Link href={`/channel/${video?.profile?.handle}`}>
-							<a>
-								<LensAvatar width={48} height={48} profile={video?.profile} />
-							</a>
+							<LensAvatar width={48} height={48} profile={video?.profile} />
 						</Link>
 						<div className="space-y-3 flex-1">
 							<div className="flex items-center justify-between">
 								<div>
-									<Link href={`/channel/${video?.profile?.handle}`}>
-										<a className="flex items-center space-x-1">
-											<p className="font-medium">
-												{video?.profile?.name ?? video?.profile?.handle ?? (
-													<Skeleton width={150} />
-												)}
-											</p>
-											<BadgeCheckIcon className="w-4 h-4 text-gray-600" />
-										</a>
+									<Link
+										href={`/channel/${video?.profile?.handle}`}
+										className="flex items-center space-x-1"
+									>
+										<p className="font-medium">
+											{video?.profile?.name ?? video?.profile?.handle ?? <Skeleton width={150} />}
+										</p>
+										<BadgeCheckIcon className="w-4 h-4 text-gray-600" />
 									</Link>
 									<p className="text-xs text-gray-500">
 										{(video && `${video?.profile?.stats?.totalFollowers} subscribers`) ?? (
@@ -150,11 +147,12 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 									<LensAvatar profile={comment.profile} width={40} height={40} />
 									<div>
 										<div className="flex items-center space-x-2">
-											<Link href={`/channel/${comment.profile.handle}`}>
-												<a className="font-medium text-black text-sm flex items-center space-x-1">
-													<span>{comment.profile.name ?? comment.profile.handle}</span>
-													<BadgeCheckIcon className="w-3 h-3 text-gray-600" />
-												</a>
+											<Link
+												href={`/channel/${comment.profile.handle}`}
+												className="font-medium text-black text-sm flex items-center space-x-1"
+											>
+												<span>{comment.profile.name ?? comment.profile.handle}</span>
+												<BadgeCheckIcon className="w-3 h-3 text-gray-600" />
 											</Link>
 											<p className="text-xs text-gray-500">
 												{formatDistanceToNowStrict(new Date(comment.createdAt))} ago

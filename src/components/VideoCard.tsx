@@ -19,40 +19,38 @@ const VideoCard: FC<{ post?: Post; expanded?: boolean }> = ({ post, expanded = f
 	}, [post])
 
 	return (
-		<Link href={`/watch/${post?.id}`}>
-			<a className="flex-1 space-y-2">
-				{coverImg ? (
-					<Image height={176} width={320} objectFit="cover" className="rounded-lg" src={coverImg} alt="" />
-				) : (
-					<Skeleton className="!h-44 !w-80" />
-				)}
-				<div className="space-y-2">
-					<div className="flex items-start space-x-3">
-						{expanded && <LensAvatar width={36} height={36} profile={post?.profile} />}
+		<Link href={`/watch/${post?.id}`} className="flex-1 space-y-2">
+			{coverImg ? (
+				<Image height={176} width={320} objectFit="cover" className="rounded-lg" src={coverImg} alt="" />
+			) : (
+				<Skeleton className="!h-44 !w-80" />
+			)}
+			<div className="space-y-2">
+				<div className="flex items-start space-x-3">
+					{expanded && <LensAvatar width={36} height={36} profile={post?.profile} />}
+					<div>
+						<h4 className="text-sm font-medium">{post?.metadata?.name ?? <Skeleton width={250} />}</h4>
 						<div>
-							<h4 className="text-sm font-medium">{post?.metadata?.name ?? <Skeleton width={250} />}</h4>
-							<div>
-								{expanded && (
-									<p className="text-xs text-gray-800">{post?.profile?.handle ?? <Skeleton />}</p>
+							{expanded && (
+								<p className="text-xs text-gray-800">{post?.profile?.handle ?? <Skeleton />}</p>
+							)}
+							<p className="font-hairline text-xs text-gray-800">
+								{post ? (
+									`${post?.stats?.totalAmountOfCollects} collects`
+								) : (
+									<Skeleton width={70} inline />
+								)}{' '}
+								·{' '}
+								{post ? (
+									`${formatDistanceToNowStrict(new Date(post.createdAt))} ago`
+								) : (
+									<Skeleton width={70} inline />
 								)}
-								<p className="font-hairline text-xs text-gray-800">
-									{post ? (
-										`${post?.stats?.totalAmountOfCollects} collects`
-									) : (
-										<Skeleton width={70} inline />
-									)}{' '}
-									·{' '}
-									{post ? (
-										`${formatDistanceToNowStrict(new Date(post.createdAt))} ago`
-									) : (
-										<Skeleton width={70} inline />
-									)}
-								</p>
-							</div>
+							</p>
 						</div>
 					</div>
 				</div>
-			</a>
+			</div>
 		</Link>
 	)
 }

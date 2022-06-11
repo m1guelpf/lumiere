@@ -9,6 +9,9 @@ const nextConfig = withTM({
 		domains: ['avatar.tobi.sh', 'ipfs.infura.io', 'avatars.dicebear.com'],
 		contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
 	},
+	experimental: {
+		newNextLinkBehavior: true,
+	},
 })
 
 module.exports = nextConfig
