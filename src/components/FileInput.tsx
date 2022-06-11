@@ -147,7 +147,7 @@ const FileInput = forwardRef(
 
 				handleFile(file, event)
 			},
-			[handleFile, accept]
+			[handleFile, accept, onError]
 		)
 
 		const handleFocus = useCallback(
