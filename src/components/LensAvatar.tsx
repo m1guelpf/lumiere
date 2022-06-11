@@ -19,7 +19,13 @@ const LensAvatar: FC<{ profile: Profile; width: number; height: number; classNam
 	return (
 		<div className={`relative ${className}`}>
 			{avatarUrl ? (
-				<img src={avatarUrl} alt={profile?.name} width={width} height={height} className="rounded-full" />
+				<img
+					src={avatarUrl}
+					alt={profile?.name ?? profile?.handle}
+					width={width}
+					height={height}
+					className="rounded-full"
+				/>
 			) : (
 				<div className="-mt-1">
 					<Skeleton circle width={width} height={height} />

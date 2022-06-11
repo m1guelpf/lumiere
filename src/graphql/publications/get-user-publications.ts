@@ -126,6 +126,7 @@ const GET_USER_PUBLICATIONS = gql`
 
 	fragment PostFields on Post {
 		id
+		hidden
 		stats {
 			...PublicationStatsFields
 		}

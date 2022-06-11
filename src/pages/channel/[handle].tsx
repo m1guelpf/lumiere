@@ -27,7 +27,7 @@ const ChannelPage: FC<{ profile: Profile }> = ({ profile }) => {
 	const videos = useMemo<Post[]>(() => {
 		if (loadingVideos || !profile) return [...new Array(12).keys()].map(() => null)
 
-		return videoData?.videos?.items
+		return videoData?.videos?.items?.filter(post => !post.hidden)
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [videoData?.videos, loadingVideos])
 

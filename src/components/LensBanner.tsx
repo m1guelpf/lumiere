@@ -12,7 +12,7 @@ const LensBanner: FC<{ profile: Profile; className?: string }> = ({ profile, cla
 	}, [profile])
 
 	return bannerURL ? (
-		<img className={className} src={bannerURL} alt={`${profile?.name}'s banner`} />
+		<img className={className} src={bannerURL} alt={`${profile?.name ?? profile?.handle}'s banner`} />
 	) : (
 		<Skeleton className={className} />
 	)
