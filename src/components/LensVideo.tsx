@@ -61,7 +61,6 @@ const LensVideo: FC<{ video: Maybe<Post> }> = ({ video }) => {
 					{source && <source data-src={source.url} type={source.mimeType} />}
 				</Video>
 				<DefaultUi noControls>
-					<Skeleton />
 					<DefaultControls hideOnMouseLeave activeDuration={2000} />
 					<DefaultSettings />
 				</DefaultUi>
