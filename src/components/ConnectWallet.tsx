@@ -8,12 +8,17 @@ import { useProfile } from '@/context/ProfileContext'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { CubeTransparentIcon, RefreshIcon, UserCircleIcon } from '@heroicons/react/outline'
 
-const ConnectWallet: FC<{ children?: ReactNode }> = ({ children }) => {
-	const { login } = useLogin()
-	const loginOnce = useOnce(login)
+const ConnectWallet: FC<{ children?: ({ logout: Function }) => ReactNode }> = ({ children }) => {
+	const { login, logout } = useLogin()
+	const [loginOnce, reset] = useOnce(login)
 	const { activeChain } = useNetwork()
 	const { data: account } = useAccount()
 	const { isAuthenticated } = useProfile()
+
+	const handleLogout = async () => {
+		await logout()
+		reset()
+	}
 
 	useEffect(() => {
 		if (!account?.address || activeChain?.unsupported) return
@@ -64,7 +69,7 @@ const ConnectWallet: FC<{ children?: ReactNode }> = ({ children }) => {
 								)
 							}
 
-							return children
+							return children({ logout: handleLogout })
 						})()}
 					</div>
 				)

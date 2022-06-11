@@ -1,5 +1,4 @@
 import { FC, useMemo } from 'react'
-import Layout from '@/components/Layout'
 import { nodeClient } from '@/lib/apollo'
 import { useQuery } from '@apollo/client'
 import Skeleton from 'react-loading-skeleton'
@@ -32,7 +31,7 @@ const ChannelPage: FC<{ profile: Profile }> = ({ profile }) => {
 	}, [videoData?.videos, loadingVideos])
 
 	return (
-		<Layout>
+		<>
 			<div className="relative">
 				<LensBanner className="!h-24 md:!h-60 object-cover !w-full" profile={profile} />
 				<div className="absolute right-4 md:right-8 bottom-4 md:bottom-6 bg-black/20 rounded-lg px-2 py-1 flex items-center space-x-2 text-white/80">
@@ -108,7 +107,7 @@ const ChannelPage: FC<{ profile: Profile }> = ({ profile }) => {
 					<p className="text-sm text-center mt-6 w-full">This channel doesn&apos;t have any content.</p>
 				)}
 			</div>
-		</Layout>
+		</>
 	)
 }
 

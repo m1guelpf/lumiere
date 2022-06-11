@@ -1,5 +1,6 @@
 import '@/styles/app.css'
 import client from '@/lib/apollo'
+import Layout from '@/components/Layout'
 import { ApolloProvider } from '@apollo/client'
 import { APP_NAME, IS_MAINNET } from '@/lib/consts'
 import { SkeletonTheme } from 'react-loading-skeleton'
@@ -22,7 +23,9 @@ const App = ({ Component, pageProps }) => {
 				<ApolloProvider client={client}>
 					<SkeletonTheme baseColor="#00000010" highlightColor="#00000040" width={100}>
 						<ProfileProvider>
-							<Component {...pageProps} />
+							<Layout>
+								<Component {...pageProps} />
+							</Layout>
 						</ProfileProvider>
 					</SkeletonTheme>
 				</ApolloProvider>
