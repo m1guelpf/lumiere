@@ -71,7 +71,7 @@ const ChannelPage: FC<{ profile: Profile }> = ({ profile }) => {
 				</div>
 			</div>
 			<div className="-mt-1 bg-gray-200">
-				<div className="container mx-auto">
+				<div className="">
 					<div className="flex flex-col md:flex-row justify-between items-center py-4 px-4 md:px-16 space-y-6 md:space-y-0">
 						<div className="flex items-center space-x-6">
 							<LensAvatar profile={profile} className="rounded-full" width={80} height={80} />
@@ -94,9 +94,9 @@ const ChannelPage: FC<{ profile: Profile }> = ({ profile }) => {
 					</div>
 				</div>
 			</div>
-			<div className="container mx-auto flex pb-10">
+			<div className="px-4 md:px-16 flex pb-10">
 				{videos?.length > 0 ? (
-					<div className="mx-6 md:mx-16">
+					<div className="lg:mx-16">
 						<h3 className="py-6 text-base font-medium">Uploads</h3>
 						<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
 							{videos.map((video, i) => (
