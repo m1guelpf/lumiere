@@ -1,19 +1,19 @@
 import Link from 'next/link'
 import useOnce from '@/hooks/useOnce'
 import LensAvatar from './LensAvatar'
-import { FC, useEffect } from 'react'
+import { FC, ReactNode, useEffect } from 'react'
 import useLogin from '@/hooks/lens/useLogin'
 import { useAccount, useNetwork } from 'wagmi'
 import { useProfile } from '@/context/ProfileContext'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { CubeTransparentIcon, RefreshIcon, UserCircleIcon } from '@heroicons/react/outline'
 
-const ConnectWallet: FC = () => {
+const ConnectWallet: FC<{ children?: ReactNode }> = ({ children }) => {
 	const { login } = useLogin()
 	const loginOnce = useOnce(login)
 	const { activeChain } = useNetwork()
-	const { profile, isAuthenticated } = useProfile()
 	const { data: account } = useAccount()
+	const { isAuthenticated } = useProfile()
 
 	useEffect(() => {
 		if (!account?.address || activeChain?.unsupported) return
@@ -64,13 +64,7 @@ const ConnectWallet: FC = () => {
 								)
 							}
 
-							return (
-								<Link href={`/channel/${profile?.handle}`}>
-									<a className="flex items-center justify-center">
-										<LensAvatar profile={profile} width={32} height={32} />
-									</a>
-								</Link>
-							)
+							return children
 						})()}
 					</div>
 				)
