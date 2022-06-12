@@ -49,7 +49,7 @@ const LensVideo: FC<{ video: Maybe<Post> }> = ({ video }) => {
 	}, [])
 
 	return (
-		<div className="relative w-full max-h-[calc(100vh_-_169px)] min-h-[400px] h-[56.25vw] flex bg-black">
+		<div className="relative w-full max-h-[calc(100vh_-_169px)] min-h-[400px] h-[56.25vw] flex bg-black z-0">
 			<Player ref={ref}>
 				<Video
 					crossOrigin="anonymous"
