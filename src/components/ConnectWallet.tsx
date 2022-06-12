@@ -1,19 +1,18 @@
 import Link from 'next/link'
 import useOnce from '@/hooks/useOnce'
-import LensAvatar from './LensAvatar'
-import { FC, ReactNode, useEffect } from 'react'
 import useLogin from '@/hooks/lens/useLogin'
 import { useAccount, useNetwork } from 'wagmi'
+import { FC, ReactNode, useEffect } from 'react'
 import { useProfile } from '@/context/ProfileContext'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
-import { CubeTransparentIcon, RefreshIcon, UserCircleIcon } from '@heroicons/react/outline'
+import { CubeTransparentIcon, RefreshIcon, UserAddIcon, UserCircleIcon } from '@heroicons/react/outline'
 
 const ConnectWallet: FC<{ children?: ({ logout: Function }) => ReactNode }> = ({ children }) => {
 	const { login, logout } = useLogin()
 	const [loginOnce, reset] = useOnce(login)
 	const { activeChain } = useNetwork()
 	const { data: account } = useAccount()
-	const { isAuthenticated } = useProfile()
+	const { profile, isAuthenticated } = useProfile()
 
 	const handleLogout = async () => {
 		await logout()
@@ -66,6 +65,24 @@ const ConnectWallet: FC<{ children?: ({ logout: Function }) => ReactNode }> = ({
 										<span className="uppercase">Logging in...</span>
 										<RefreshIcon className="w-6 h-6 animate-spin" />
 									</button>
+								)
+							}
+
+							if (!profile) {
+								return (
+									<Link
+										href="https://testnet.lenster.xyz"
+										target="_blank"
+										onClick={() =>
+											alert(
+												"Haven't had time to add creating profiles yet, so go do it in Lenster and then come back :D"
+											)
+										}
+										className="flex items-center space-x-2 border border-red-500 text-red-500 rounded-lg px-3 py-1 text-sm"
+									>
+										<UserAddIcon className="w-6 h-6" />
+										<span className="uppercase">Create Profile</span>
+									</Link>
 								)
 							}
 

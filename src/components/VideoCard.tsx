@@ -19,20 +19,31 @@ const VideoCard: FC<{ post?: Post; expanded?: boolean }> = ({ post, expanded = f
 	}, [post])
 
 	return (
-		<Link href={`/watch/${post?.id}`} className="flex-1 space-y-2">
-			{coverImg ? (
-				<Image height={176} width={320} objectFit="cover" className="rounded-lg" src={coverImg} alt="" />
-			) : (
-				<Skeleton className="!h-44 !w-80" />
-			)}
+		<div className="flex-1 space-y-2">
+			<Link href={`/watch/${post?.id}`}>
+				{coverImg ? (
+					<Image height={176} width={320} objectFit="cover" className="rounded-lg" src={coverImg} alt="" />
+				) : (
+					<Skeleton className="!h-44 !w-80" />
+				)}
+			</Link>
 			<div className="space-y-2">
 				<div className="flex items-start space-x-3">
-					{expanded && <LensAvatar width={36} height={36} profile={post?.profile} />}
+					<Link href={`/channel/${post?.profile?.handle}`}>
+						{expanded && <LensAvatar width={36} height={36} profile={post?.profile} />}
+					</Link>
 					<div>
-						<h4 className="text-sm font-medium">{post?.metadata?.name ?? <Skeleton width={250} />}</h4>
+						<Link href={`/watch/${post?.id}`} className="text-sm font-medium">
+							{post?.metadata?.name ?? <Skeleton width={250} />}
+						</Link>
 						<div>
 							{expanded && (
-								<p className="text-xs text-gray-800">{post?.profile?.handle ?? <Skeleton />}</p>
+								<Link
+									className="text-xs text-gray-800 block"
+									href={`/channel/${post?.profile?.handle}`}
+								>
+									{post?.profile?.handle ?? <Skeleton />}
+								</Link>
 							)}
 							<p className="font-hairline text-xs text-gray-800">
 								{post ? (
@@ -41,17 +52,19 @@ const VideoCard: FC<{ post?: Post; expanded?: boolean }> = ({ post, expanded = f
 									<Skeleton width={70} inline />
 								)}{' '}
 								·{' '}
-								{post ? (
-									`${formatDistanceToNowStrict(new Date(post.createdAt))} ago`
-								) : (
-									<Skeleton width={70} inline />
-								)}
+								<Link href={`/watch/${post?.id}`}>
+									{post ? (
+										`${formatDistanceToNowStrict(new Date(post.createdAt))} ago`
+									) : (
+										<Skeleton width={70} inline />
+									)}
+								</Link>
 							</p>
 						</div>
 					</div>
 				</div>
 			</div>
-		</Link>
+		</div>
 	)
 }
 export default VideoCard

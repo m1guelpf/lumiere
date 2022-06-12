@@ -102,7 +102,7 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 								</p>
 							</div>
 							<div>
-								<FollowButton profileId={video?.profile?.id} />
+								<FollowButton profile={video?.profile} />
 							</div>
 						</div>
 						<LensVideoDescription

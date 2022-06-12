@@ -46,6 +46,27 @@ const GET_PROFILE = gql`
 				traitType
 				value
 			}
+			followModule {
+				... on FeeFollowModuleSettings {
+					type
+					amount {
+						asset {
+							symbol
+							name
+							decimals
+							address
+						}
+						value
+					}
+					recipient
+				}
+				... on ProfileFollowModuleSettings {
+					type
+				}
+				... on RevertFollowModuleSettings {
+					type
+				}
+			}
 		}
 	}
 `

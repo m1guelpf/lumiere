@@ -85,7 +85,7 @@ const ChannelPage: FC<{ profile: Profile }> = ({ profile }) => {
 							</div>
 						</div>
 						<div className="text-gray-600 flex flex-row-reverse md:flex-col justify-start w-full md:w-auto">
-							<FollowButton profileId={profile?.id} />
+							<FollowButton profile={profile} />
 							<p className="mt-2 font-hairline text-sm text-center md:text-right mr-2 md:mr-0">
 								{profile ? `${profile?.stats?.totalFollowers} subscribers` : <Skeleton width={80} />}
 							</p>
