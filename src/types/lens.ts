@@ -1624,7 +1624,7 @@ export type NotificationRequest = {
 	cursor?: InputMaybe<Scalars['Cursor']>
 	limit?: InputMaybe<Scalars['LimitScalar']>
 	/** The profile id */
-	profileId?: InputMaybe<Scalars['ProfileId']>
+	profileId: Scalars['ProfileId']
 	/** The App Id */
 	sources?: InputMaybe<Array<Scalars['Sources']>>
 }
@@ -1769,6 +1769,11 @@ export type Profile = {
 	picture?: Maybe<ProfileMedia>
 	/** Profile stats */
 	stats: ProfileStats
+}
+
+export type ProfileFollowModuleBeenRedeemedRequest = {
+	followProfileId: Scalars['ProfileId']
+	redeemingProfileId: Scalars['ProfileId']
 }
 
 export type ProfileFollowModuleRedeemParams = {
@@ -1939,6 +1944,7 @@ export enum PublicationSortCriteria {
 	Latest = 'LATEST',
 	TopCollected = 'TOP_COLLECTED',
 	TopCommented = 'TOP_COMMENTED',
+	TopMirrored = 'TOP_MIRRORED',
 }
 
 /** The publication stats */
@@ -2001,6 +2007,7 @@ export type Query = {
 	pendingApprovalFollows: PendingApproveFollowsResult
 	ping: Scalars['String']
 	profile?: Maybe<Profile>
+	profileFollowModuleBeenRedeemed: Scalars['Boolean']
 	profileRevenue: ProfileRevenueResult
 	profiles: PaginatedProfileResult
 	publication?: Maybe<Publication>
@@ -2088,6 +2095,10 @@ export type QueryPendingApprovalFollowsArgs = {
 
 export type QueryProfileArgs = {
 	request: SingleProfileQueryRequest
+}
+
+export type QueryProfileFollowModuleBeenRedeemedArgs = {
+	request: ProfileFollowModuleBeenRedeemedRequest
 }
 
 export type QueryProfileRevenueArgs = {

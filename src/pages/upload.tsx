@@ -128,6 +128,49 @@ const UploadPage: FC = () => {
 								</p>
 							</div>
 						</div>
+						<fieldset className="mt-4">
+							<legend className="block text-sm font-medium text-gray-700">Terms</legend>
+							<div className="mt-2 space-y-5">
+								<label className="relative flex items-start">
+									<div className="flex items-center h-5">
+										<input
+											id="rights"
+											aria-describedby="rights-description"
+											name="rights"
+											type="checkbox"
+											required
+											className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+										/>
+									</div>
+									<div className="ml-3 text-sm">
+										<span className="sr-only">Rights</span>
+										<p id="rights-description" className="text-gray-500">
+											I own the rights for the uploaded content, and allow Lumiere (and other
+											Lens-powered sites) to host and display it
+										</p>
+									</div>
+								</label>
+								<label className="relative flex items-start">
+									<div className="flex items-center h-5">
+										<input
+											id="sensitive"
+											aria-describedby="sensitive-description"
+											name="sensitive"
+											type="checkbox"
+											className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+											required
+										/>
+									</div>
+									<div className="ml-3 text-sm">
+										<span className="sr-only">Sensitive</span>
+										<p id="sensitive-description" className="text-gray-500">
+											The uploaded content is suitable for all audiences, and does not contain
+											illegal or sensitive media
+										</p>
+									</div>
+								</label>
+							</div>
+						</fieldset>
 					</div>
 				</div>
 
