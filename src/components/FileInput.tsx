@@ -1,4 +1,4 @@
-import { validateAccept } from '@/lib/utils'
+import { validateAccept } from '@/lib/files'
 import {
 	AllHTMLAttributes,
 	forwardRef,

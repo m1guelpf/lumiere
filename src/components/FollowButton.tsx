@@ -1,20 +1,42 @@
-import { FC } from 'react'
+import { FC, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
-import { Profile } from '@/types/lens'
 import useFollowing from '@/hooks/lens/useFollowing'
+import useFollowProfile from '@/hooks/lens/useFollowProfile'
+import { FollowModuleRedeemParams, Profile } from '@/types/lens'
 
 const FollowButton: FC<{ profile: Profile }> = ({ profile }) => {
+	const [tempFollowing, setTempFollowing] = useState<boolean>(false)
 	const isFollowing = useFollowing(profile?.id)
+	const { followProfile } = useFollowProfile({ onSuccess: () => setTempFollowing(true) })
 
-	const followProfile = () => {
-		toast.error('Not implemented yet')
-	}
+	const followModule = useMemo<FollowModuleRedeemParams>(() => {
+		if (!profile?.followModule) return
+
+		if (profile?.followModule?.__typename == 'FeeFollowModuleSettings') {
+			return {
+				feeFollowModule: {
+					amount: {
+						currency: profile?.followModule?.amount?.asset?.address,
+						value: profile?.followModule?.amount?.value,
+					},
+				},
+			}
+		}
+
+		if (profile?.followModule?.__typename == 'ProfileFollowModuleSettings') {
+			return {
+				profileFollowModule: {
+					profileId: profile?.id,
+				},
+			}
+		}
+	}, [profile?.followModule, profile?.id])
 
 	const unfollowProfile = () => {
 		toast.error('Not implemented yet')
 	}
 
-	if (isFollowing) {
+	if (isFollowing || tempFollowing) {
 		return (
 			<button
 				onClick={unfollowProfile}
@@ -39,7 +61,7 @@ const FollowButton: FC<{ profile: Profile }> = ({ profile }) => {
 	if (profile?.followModule?.__typename == 'FeeFollowModuleSettings') {
 		return (
 			<button
-				onClick={followProfile}
+				onClick={() => followProfile(profile?.id, followModule)}
 				className="px-3 py-2 bg-red-600 uppercase text-red-50 font-medium text-sm rounded-md"
 			>
 				Join for {profile.followModule.amount.value} ${profile.followModule.amount.asset.symbol}
@@ -49,7 +71,7 @@ const FollowButton: FC<{ profile: Profile }> = ({ profile }) => {
 
 	return (
 		<button
-			onClick={followProfile}
+			onClick={() => followProfile(profile?.id, followModule)}
 			className="px-3 py-2 bg-red-600 uppercase text-red-50 font-medium text-sm rounded-md"
 		>
 			Subscribe

@@ -1,4 +1,4 @@
-import toast, { Renderable, ValueOrFunction } from 'react-hot-toast'
+import toast, { DefaultToastOptions, Renderable, ValueOrFunction } from 'react-hot-toast'
 
 export function toastOn<T>(
 	fn: () => Promise<T>,
@@ -6,7 +6,8 @@ export function toastOn<T>(
 		loading: Renderable
 		success: ValueOrFunction<Renderable, T>
 		error: ValueOrFunction<Renderable, any>
-	}
+	},
+	opts?: DefaultToastOptions | undefined
 ): Promise<T> {
-	return toast.promise<T>(fn(), msgs)
+	return toast.promise<T>(fn(), msgs, opts)
 }

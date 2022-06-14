@@ -1,4 +1,6 @@
 import { FC, useMemo } from 'react'
+import Meta from '@/components/Meta'
+import { APP_NAME } from '@/lib/consts'
 import { nodeClient } from '@/lib/apollo'
 import { useQuery } from '@apollo/client'
 import Skeleton from 'react-loading-skeleton'
@@ -32,6 +34,7 @@ const ChannelPage: FC<{ profile: Profile }> = ({ profile }) => {
 
 	return (
 		<>
+			<Meta title={profile && `${profile?.name ?? profile?.handle}'s channel | ${APP_NAME}`} />
 			<div className="relative">
 				<LensBanner className="!h-24 md:!h-60 object-cover !w-full" profile={profile} />
 				<div className="absolute right-4 md:right-8 bottom-4 md:bottom-6 bg-black/20 rounded-lg px-2 py-1 flex items-center space-x-2 text-white/80">

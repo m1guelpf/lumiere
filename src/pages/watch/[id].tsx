@@ -1,5 +1,7 @@
 import Link from 'next/link'
+import Meta from '@/components/Meta'
 import format from 'date-fns/format'
+import { APP_NAME } from '@/lib/consts'
 import { toast } from 'react-hot-toast'
 import { useQuery } from '@apollo/client'
 import { nodeClient } from '@/lib/apollo'
@@ -39,6 +41,10 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 
 	return (
 		<>
+			<Meta
+				title={video && `${video.metadata.name} | ${APP_NAME}`}
+				description={video && video.metadata.description}
+			/>
 			<ReportModal open={reportOpen} onClose={() => setReportOpen(false)} videoId={video?.id} />
 			<div className="pb-10">
 				<LensVideoRenderer video={video} />
