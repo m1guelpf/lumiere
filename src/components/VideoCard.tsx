@@ -29,7 +29,7 @@ const VideoCard: FC<{ post?: Post; expanded?: boolean }> = ({ post, expanded = f
 				)}
 			</Link>
 			<div className="space-y-2">
-				<div className="flex items-start space-x-3">
+				<div className="flex items-start md:space-x-3">
 					<Link href={`/channel/${post?.profile?.handle}`} className="hidden md:block">
 						{expanded && <LensAvatar width={36} height={36} profile={post?.profile} />}
 					</Link>
