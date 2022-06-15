@@ -6,7 +6,7 @@ Lumiere provides a YouTube-inspired interface on top of IPFS & the Lens Protocol
 
 ## Getting Started
 
-First, install dependencies with `yarn install`. Then, initialize the env file with `cp .env.example .env`, and add your Infura project id and app url. Finally, run the development server with `yarn dev`.
+First, install dependencies with `yarn install`. Then, initialize the env file with `cp .env.example .env`, and add your Infura project id, IPFS details and app url. Finally, run the development server with `yarn dev`.
 
 Open [http://localhost:4783](http://localhost:4783) with your browser to see the result.
 

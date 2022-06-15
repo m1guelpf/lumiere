@@ -86,7 +86,7 @@ const ConnectWallet: FC<{ children?: ({ logout: Function }) => ReactNode }> = ({
 								)
 							}
 
-							return children({ logout: handleLogout })
+							return children?.({ logout: handleLogout })
 						})()}
 					</div>
 				)

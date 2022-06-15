@@ -72,9 +72,9 @@ const useCreatePost = ({ onSuccess }: CreatePostOptions = {}): CreatePost => {
 
 	const createPost = useCallback(
 		async (post: Metadata) => {
-			if (!account?.address) return toast.error('Please connect your wallet first.')
-			if (activeChain?.unsupported) return toast.error('Please change your network.')
-			if (!profile?.id) return toast.error('Please create a Lens profile first.')
+			if (!account?.address) throw toast.error('Please connect your wallet first.')
+			if (activeChain?.unsupported) throw toast.error('Please change your network.')
+			if (!profile?.id) throw toast.error('Please create a Lens profile first.')
 
 			const { id, typedData } = await toastOn(
 				async () => {

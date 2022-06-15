@@ -18,7 +18,7 @@ export const LensVideoRenderer: FC<{ video: Maybe<Post> }> = ({ video }) => {
 export const LensVideoFallback: FC<{ video: Maybe<Post> }> = ({ video }) => {
 	const source = getVideo(video?.metadata?.media ?? [])
 	const posterImg = video?.metadata?.cover
-		? normalizeUrl(video.metadata.cover?.original?.url, video.metadata.cover?.original?.mimeType)
+		? normalizeUrl(video.metadata.cover?.original?.url)
 		: getImageUrl(video?.metadata?.media ?? [])
 
 	return (
@@ -34,7 +34,7 @@ const LensVideo: FC<{ video: Maybe<Post> }> = ({ video }) => {
 	const ref = useRef<HTMLVmPlayerElement>()
 	const source = getVideo(video?.metadata?.media ?? [])
 	const posterImg = video?.metadata?.cover
-		? normalizeUrl(video.metadata.cover?.original?.url, video.metadata.cover?.original?.mimeType)
+		? normalizeUrl(video.metadata.cover?.original?.url)
 		: getImageUrl(video?.metadata?.media ?? [])
 
 	// ugly hack to get vime to the size we want on big screens

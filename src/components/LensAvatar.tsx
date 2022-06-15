@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { FC, useMemo } from 'react'
 import { Profile } from '@/types/lens'
+import { normalizeUrl } from '@/lib/media'
 import Skeleton from 'react-loading-skeleton'
 
 const LensAvatar: FC<{ profile: Profile; width: number; height: number; className?: string }> = ({
@@ -13,8 +14,8 @@ const LensAvatar: FC<{ profile: Profile; width: number; height: number; classNam
 		if (!profile) return
 		if (!profile?.picture) return `https://avatar.tobi.sh/${profile.handle}.png`
 
-		if (profile.picture?.__typename == 'NftImage') return profile.picture?.uri
-		return profile.picture.original.url
+		if (profile.picture?.__typename == 'NftImage') return normalizeUrl(profile.picture?.uri)
+		return normalizeUrl(profile.picture.original.url)
 	}, [profile])
 
 	return (

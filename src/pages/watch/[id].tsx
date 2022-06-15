@@ -55,16 +55,16 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 								{video?.metadata?.name ?? <Skeleton width={380} />}
 							</h2>
 							<div className="flex items-center justify-between text-gray-500">
-								<p className="text-sm">
+								<p className="text-sm whitespace-nowrap">
 									{video ? format(new Date(video.createdAt as number), 'd LLL y') : <Skeleton />}
 								</p>
-								<div className="flex items-center space-x-6">
+								<div className="flex items-center space-x-4 md:space-x-6">
 									<div className="flex items-center space-x-1">
 										<button
 											onClick={() => toast.error('Not implemented yet')}
 											className="hover:bg-gray-100 rounded-full p-2"
 										>
-											<SwitchHorizontalIcon className="w-6 h-6" />
+											<SwitchHorizontalIcon className="w-5 md:w-6 h-5 md:h-6" />
 										</button>
 										<span>
 											{video?.stats?.totalAmountOfMirrors ?? <Skeleton width={15} inline />}
@@ -75,7 +75,7 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 											onClick={() => toast.error('Not implemented yet')}
 											className="hover:bg-gray-100 rounded-full p-2"
 										>
-											<SaveAsIcon className="w-6 h-6" />
+											<SaveAsIcon className="w-5 md:w-6 h-5 md:h-6" />
 										</button>
 										<span>
 											{video?.stats?.totalAmountOfCollects ?? <Skeleton width={15} inline />}
@@ -86,18 +86,18 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 											onClick={() => shareLink(window.location.href)}
 											className="hover:bg-gray-100 rounded-full p-2"
 										>
-											<ShareIcon className="w-6 h-6" />
+											<ShareIcon className="w-5 md:w-6 h-5 md:h-6" />
 										</button>
-										<span>Share</span>
+										<span className="hidden md:inline">Share</span>
 									</div>
 									<div className="flex items-center space-x-1">
 										<button
 											onClick={() => setReportOpen(true)}
 											className="hover:bg-gray-100 rounded-full p-2"
 										>
-											<FlagIcon className="w-6 h-6" />
+											<FlagIcon className="w-5 md:w-6 h-5 md:h-6" />
 										</button>
-										<span>Report</span>
+										<span className="hidden md:inline">Report</span>
 									</div>
 								</div>
 							</div>

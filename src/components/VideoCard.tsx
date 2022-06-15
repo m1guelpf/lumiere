@@ -4,6 +4,7 @@ import { Post } from '@/types/lens'
 import { FC, useMemo } from 'react'
 import LensAvatar from './LensAvatar'
 import Skeleton from 'react-loading-skeleton'
+import { BadgeCheckIcon } from '@heroicons/react/solid'
 import { getImageUrl, includesImage, normalizeUrl } from '@/lib/media'
 import formatDistanceToNowStrict from 'date-fns/formatDistanceToNowStrict'
 
@@ -12,7 +13,7 @@ const VideoCard: FC<{ post?: Post; expanded?: boolean }> = ({ post, expanded = f
 		if (!post) return
 		if (includesImage(post.metadata.media)) return getImageUrl(post.metadata.media)
 		if (post.metadata.cover) {
-			return normalizeUrl(post.metadata.cover.original.url, post.metadata.cover.original.mimeType)
+			return normalizeUrl(post.metadata.cover.original.url)
 		}
 
 		return `https://avatar.tobi.sh/${post.id}.png`
@@ -29,7 +30,7 @@ const VideoCard: FC<{ post?: Post; expanded?: boolean }> = ({ post, expanded = f
 			</Link>
 			<div className="space-y-2">
 				<div className="flex items-start space-x-3">
-					<Link href={`/channel/${post?.profile?.handle}`}>
+					<Link href={`/channel/${post?.profile?.handle}`} className="hidden md:block">
 						{expanded && <LensAvatar width={36} height={36} profile={post?.profile} />}
 					</Link>
 					<div>
@@ -39,10 +40,11 @@ const VideoCard: FC<{ post?: Post; expanded?: boolean }> = ({ post, expanded = f
 						<div>
 							{expanded && (
 								<Link
-									className="text-xs text-gray-800 block"
+									className="text-xs text-gray-800 flex items-center space-x-1"
 									href={`/channel/${post?.profile?.handle}`}
 								>
-									{post?.profile?.handle ?? <Skeleton />}
+									<span>{post?.profile?.handle ?? <Skeleton />}</span>
+									<BadgeCheckIcon className="w-3 h-3 text-gray-600" />
 								</Link>
 							)}
 							<p className="font-hairline text-xs text-gray-800">
