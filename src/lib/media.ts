@@ -24,7 +24,7 @@ export const normalizeUrl = (url: string, mimeType?: string): string => {
 
 	if (parsed.host === 'ipfs.infura.io') parsed.host = 'lumiere.infura-ipfs.io'
 	if (parsed.protocol == 'ipfs:') {
-		return `https://${mimeType?.startsWith('video') ? 'dweb.link' : 'lumiere.infura-ipfs.io'}/ipfs/${
+		return `https://lumiere.infura-ipfs.io/ipfs/${
 			parsed.hostname != '' ? parsed.hostname : parsed.pathname.slice(2)
 		}`
 	}
