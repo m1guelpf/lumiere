@@ -18,13 +18,22 @@ import { GetStaticPaths, GetStaticProps } from 'next'
 import { BadgeCheckIcon } from '@heroicons/react/solid'
 import { LensVideoRenderer } from '@/components/LensVideo'
 import GET_PUBLICATION from '@/graphql/publications/get-publication'
+import useMirrorPublication from '@/hooks/lens/useMirrorPublication'
 import LensVideoDescription from '@/components/LensVideoDescription'
 import { Comment, Maybe, PaginatedPublicationResult, Post } from '@/types/lens'
 import GET_PUBLICATION_COMMENTS from '@/graphql/publications/get-publication-comments'
-import { FlagIcon, SaveAsIcon, ShareIcon, SwitchHorizontalIcon } from '@heroicons/react/outline'
+import {
+	FlagIcon,
+	SaveAsIcon,
+	ShareIcon,
+	SwitchHorizontalIcon,
+	ThumbDownIcon,
+	ThumbUpIcon,
+} from '@heroicons/react/outline'
 
 const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 	const [reportOpen, setReportOpen] = useState<boolean>(false)
+	const { mirrorPublication, loading: mirrorLoading } = useMirrorPublication()
 
 	const {
 		data: commentData,
@@ -54,17 +63,48 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 							<h2 className="font-medium text-lg break-words">
 								{video?.metadata?.name ?? <Skeleton width={380} />}
 							</h2>
-							<div className="flex items-center justify-between text-gray-500">
+							<div className="flex flex-col md:flex-row items-start md:items-center md:justify-between space-y-2 md:space-y-0 text-gray-500">
 								<p className="text-sm whitespace-nowrap">
 									{video ? format(new Date(video.createdAt as number), 'd LLL y') : <Skeleton />}
 								</p>
-								<div className="flex items-center space-x-4 md:space-x-6">
-									<div className="flex items-center space-x-1">
+								<div className="flex items-center md:space-x-6 justify-between md:justify-start w-full md:w-auto">
+									<div className="flex items-center md:space-x-1">
 										<button
-											onClick={() => toast.error('Not implemented yet')}
+											onClick={() => toast.error('Not implemented yet.')}
 											className="hover:bg-gray-100 rounded-full p-2"
 										>
-											<SwitchHorizontalIcon className="w-5 md:w-6 h-5 md:h-6" />
+											<ThumbUpIcon className="w-5 md:w-6 h-5 md:h-6" />
+										</button>
+										<span>
+											{video ? (
+												video.stats.totalUpvotes - video.stats.totalDownvotes
+											) : (
+												<Skeleton width={15} inline />
+											)}
+										</span>
+										<button
+											onClick={() => toast.error('Not implemented yet.')}
+											className="hover:bg-gray-100 rounded-full p-2"
+										>
+											<ThumbDownIcon className="w-5 md:w-6 h-5 md:h-6" />
+										</button>
+									</div>
+									<div className="flex items-center space-x-1">
+										<button
+											onClick={() =>
+												mirrorPublication(video?.id, {
+													followerOnlyReferenceModule:
+														video?.referenceModule?.__typename ==
+														'FollowOnlyReferenceModuleSettings',
+												})
+											}
+											className="hover:bg-gray-100 rounded-full p-2"
+										>
+											{mirrorLoading ? (
+												<Spinner className="w-5 md:w-6 h-5 md:h-6" />
+											) : (
+												<SwitchHorizontalIcon className="w-5 md:w-6 h-5 md:h-6" />
+											)}
 										</button>
 										<span>
 											{video?.stats?.totalAmountOfMirrors ?? <Skeleton width={15} inline />}
@@ -81,23 +121,25 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 											{video?.stats?.totalAmountOfCollects ?? <Skeleton width={15} inline />}
 										</span>
 									</div>
-									<div className="flex items-center space-x-1">
-										<button
-											onClick={() => shareLink(window.location.href)}
-											className="hover:bg-gray-100 rounded-full p-2"
-										>
-											<ShareIcon className="w-5 md:w-6 h-5 md:h-6" />
-										</button>
-										<span className="hidden md:inline">Share</span>
-									</div>
-									<div className="flex items-center space-x-1">
-										<button
-											onClick={() => setReportOpen(true)}
-											className="hover:bg-gray-100 rounded-full p-2"
-										>
-											<FlagIcon className="w-5 md:w-6 h-5 md:h-6" />
-										</button>
-										<span className="hidden md:inline">Report</span>
+									<div className="flex items-center md:space-x-6">
+										<div className="flex items-center space-x-1">
+											<button
+												onClick={() => shareLink(window.location.href)}
+												className="hover:bg-gray-100 rounded-full p-2"
+											>
+												<ShareIcon className="w-5 md:w-6 h-5 md:h-6" />
+											</button>
+											<span className="hidden md:inline">Share</span>
+										</div>
+										<div className="flex items-center space-x-1">
+											<button
+												onClick={() => setReportOpen(true)}
+												className="hover:bg-gray-100 rounded-full p-2"
+											>
+												<FlagIcon className="w-5 md:w-6 h-5 md:h-6" />
+											</button>
+											<span className="hidden md:inline">Report</span>
+										</div>
 									</div>
 								</div>
 							</div>

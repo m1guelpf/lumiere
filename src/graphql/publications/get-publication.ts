@@ -15,6 +15,8 @@ const GET_PUBLICATION = gql`
 	}
 
 	fragment PublicationStatsFields on PublicationStats {
+		totalUpvotes
+		totalDownvotes
 		totalAmountOfMirrors
 		totalAmountOfCollects
 		totalAmountOfComments
