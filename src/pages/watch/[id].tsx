@@ -20,6 +20,7 @@ import { LensVideoRenderer } from '@/components/LensVideo'
 import GET_PUBLICATION from '@/graphql/publications/get-publication'
 import useMirrorPublication from '@/hooks/lens/useMirrorPublication'
 import LensVideoDescription from '@/components/LensVideoDescription'
+import useCollectPublication from '@/hooks/lens/useCollectPublication'
 import { Comment, Maybe, PaginatedPublicationResult, Post } from '@/types/lens'
 import GET_PUBLICATION_COMMENTS from '@/graphql/publications/get-publication-comments'
 import {
@@ -34,6 +35,7 @@ import {
 const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 	const [reportOpen, setReportOpen] = useState<boolean>(false)
 	const { mirrorPublication, loading: mirrorLoading } = useMirrorPublication()
+	const { collectPublication, loading: collectLoading } = useCollectPublication()
 
 	const {
 		data: commentData,
@@ -112,10 +114,14 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 									</div>
 									<div className="flex items-center space-x-1">
 										<button
-											onClick={() => toast.error('Not implemented yet')}
+											onClick={() => collectPublication(video?.id)}
 											className="hover:bg-gray-100 rounded-full p-2"
 										>
-											<SaveAsIcon className="w-5 md:w-6 h-5 md:h-6" />
+											{collectLoading ? (
+												<Spinner className="w-5 md:w-6 h-5 md:h-6" />
+											) : (
+												<SaveAsIcon className="w-5 md:w-6 h-5 md:h-6" />
+											)}
 										</button>
 										<span>
 											{video?.stats?.totalAmountOfCollects ?? <Skeleton width={15} inline />}
