@@ -21,6 +21,7 @@ import GET_PUBLICATION from '@/graphql/publications/get-publication'
 import useMirrorPublication from '@/hooks/lens/useMirrorPublication'
 import LensVideoDescription from '@/components/LensVideoDescription'
 import useCollectPublication from '@/hooks/lens/useCollectPublication'
+import useReactToPublication from '@/hooks/lens/useReactToPublication'
 import { Comment, Maybe, PaginatedPublicationResult, Post } from '@/types/lens'
 import GET_PUBLICATION_COMMENTS from '@/graphql/publications/get-publication-comments'
 import {
@@ -36,6 +37,7 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 	const [reportOpen, setReportOpen] = useState<boolean>(false)
 	const { mirrorPublication, loading: mirrorLoading } = useMirrorPublication()
 	const { collectPublication, loading: collectLoading } = useCollectPublication()
+	const { upvotePublication, downvotePublication, loading: reactionLoading } = useReactToPublication()
 
 	const {
 		data: commentData,
@@ -72,10 +74,14 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 								<div className="flex items-center md:space-x-6 justify-between md:justify-start w-full md:w-auto">
 									<div className="flex items-center md:space-x-1">
 										<button
-											onClick={() => toast.error('Not implemented yet.')}
+											onClick={() => upvotePublication(video?.id)}
 											className="hover:bg-gray-100 rounded-full p-2"
 										>
-											<ThumbUpIcon className="w-5 md:w-6 h-5 md:h-6" />
+											{reactionLoading ? (
+												<Spinner className="w-5 md:w-6 h-5 md:h-6" />
+											) : (
+												<ThumbUpIcon className="w-5 md:w-6 h-5 md:h-6" />
+											)}
 										</button>
 										<span>
 											{video ? (
@@ -85,10 +91,14 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 											)}
 										</span>
 										<button
-											onClick={() => toast.error('Not implemented yet.')}
+											onClick={() => downvotePublication(video?.id)}
 											className="hover:bg-gray-100 rounded-full p-2"
 										>
-											<ThumbDownIcon className="w-5 md:w-6 h-5 md:h-6" />
+											{reactionLoading ? (
+												<Spinner className="w-5 md:w-6 h-5 md:h-6" />
+											) : (
+												<ThumbDownIcon className="w-5 md:w-6 h-5 md:h-6" />
+											)}
 										</button>
 									</div>
 									<div className="flex items-center space-x-1">

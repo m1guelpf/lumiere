@@ -1,4 +1,4 @@
-import toast, { DefaultToastOptions, Renderable, ValueOrFunction } from 'react-hot-toast'
+import toast, { DefaultToastOptions, Renderable, resolveValue, ValueOrFunction } from 'react-hot-toast'
 
 export function toastOn<T>(
 	fn: () => Promise<T>,
@@ -9,5 +9,19 @@ export function toastOn<T>(
 	},
 	opts?: DefaultToastOptions | undefined
 ): Promise<T> {
-	return toast.promise<T>(fn(), msgs, opts)
+	const id = toast.loading(msgs.loading, { ...opts, ...opts?.loading })
+	const promise = fn()
+
+	promise
+		.then(async p => {
+			toast.success(resolveValue(msgs.success, p), { id, ...opts, ...opts?.success })
+
+			return p
+		})
+		.catch(e => {
+			console.log(e)
+			toast.error(resolveValue(msgs.error, e), { id, ...opts, ...opts?.error })
+		})
+
+	return promise
 }
