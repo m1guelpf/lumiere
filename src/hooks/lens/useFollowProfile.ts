@@ -4,22 +4,23 @@ import toast from 'react-hot-toast'
 import { useCallback } from 'react'
 import { toastOn } from '@/lib/toasts'
 import { useMutation } from '@apollo/client'
+import useWaitForAction from './useWaitForAction'
 import LensHubProxy from '@/abis/LensHubProxy.json'
 import { useProfile } from '@/context/ProfileContext'
 import BROADCAST_MUTATION from '@/graphql/broadcast/broadcast'
 import FOLLOW_REQUEST_SIG from '@/graphql/follows/follow-request'
 import { ERROR_MESSAGE, LENSHUB_PROXY, RELAYER_ON } from '@/lib/consts'
 import { useAccount, useContractWrite, useNetwork, useSignTypedData } from 'wagmi'
-import { FollowModuleRedeemParams, Mutation, MutationCreateFollowTypedDataArgs } from '@/types/lens'
+import { FollowModuleRedeemParams, Mutation, MutationCreateFollowTypedDataArgs, RelayerResult } from '@/types/lens'
 
 type FollowProfile = {
-	followProfile: (profile: string, followModule: FollowModuleRedeemParams) => Promise<unknown>
+	followProfile: (profile: string, followModule: FollowModuleRedeemParams) => Promise<() => Promise<unknown>>
 	loading: boolean
 	error?: Error
 }
-type FollowProfileOptions = { onSuccess?: () => void }
+type FollowProfileOptions = { onSuccess?: () => void; onIndex?: () => void }
 
-const useFollowProfile = ({ onSuccess }: FollowProfileOptions = {}): FollowProfile => {
+const useFollowProfile = ({ onSuccess, onIndex }: FollowProfileOptions = {}): FollowProfile => {
 	const { profile: activeProfile } = useProfile()
 	const { activeChain } = useNetwork()
 	const { data: account } = useAccount()
@@ -43,6 +44,7 @@ const useFollowProfile = ({ onSuccess }: FollowProfileOptions = {}): FollowProfi
 		},
 	})
 	const {
+		data: txData,
 		writeAsync: sendTx,
 		isLoading: txLoading,
 		error: txError,
@@ -61,7 +63,7 @@ const useFollowProfile = ({ onSuccess }: FollowProfileOptions = {}): FollowProfi
 			},
 		}
 	)
-	const [broadcast, { loading: gasslessLoading, error: gasslessError }] = useMutation<{
+	const [broadcast, { data: broadcastResult, loading: gasslessLoading, error: gasslessError }] = useMutation<{
 		broadcast: Mutation['broadcast']
 	}>(BROADCAST_MUTATION, {
 		onCompleted({ broadcast }) {
@@ -75,11 +77,17 @@ const useFollowProfile = ({ onSuccess }: FollowProfileOptions = {}): FollowProfi
 	})
 	//#endregion
 
+	const { resolveOnAction } = useWaitForAction({
+		onParse: onIndex,
+		txHash: txData?.hash,
+		txId: (broadcastResult?.broadcast as RelayerResult)?.txId as string,
+	})
+
 	const followProfile = useCallback(
 		async (profile: string, followModule: FollowModuleRedeemParams) => {
-			if (!account?.address) return toast.error('Please connect your wallet first.')
-			if (activeChain?.unsupported) return toast.error('Please change your network.')
-			if (!activeProfile?.id) return toast.error('Please create a Lens profile first.')
+			if (!account?.address) throw toast.error('Please connect your wallet first.')
+			if (activeChain?.unsupported) throw toast.error('Please change your network.')
+			if (!activeProfile?.id) throw toast.error('Please create a Lens profile first.')
 
 			const { id, typedData } = await toastOn(
 				async () => {
@@ -113,7 +121,7 @@ const useFollowProfile = ({ onSuccess }: FollowProfileOptions = {}): FollowProfi
 			const { v, r, s } = ethers.utils.splitSignature(signature)
 
 			if (RELAYER_ON) {
-				return toastOn(
+				const result = await toastOn(
 					async () => {
 						const {
 							data: { broadcast: result },
@@ -124,12 +132,16 @@ const useFollowProfile = ({ onSuccess }: FollowProfileOptions = {}): FollowProfi
 						})
 
 						if ('reason' in result) throw result.reason
+
+						return result
 					},
 					{ loading: 'Sending transaction...', success: 'Transaction sent!', error: ERROR_MESSAGE }
 				)
+
+				return resolveOnAction({ txId: result.txId })
 			}
 
-			await toastOn(
+			const tx = await toastOn(
 				() =>
 					sendTx({
 						args: {
@@ -141,8 +153,19 @@ const useFollowProfile = ({ onSuccess }: FollowProfileOptions = {}): FollowProfi
 					}),
 				{ loading: 'Sending transaction...', success: 'Transaction sent!', error: ERROR_MESSAGE }
 			)
+
+			return resolveOnAction({ txHash: tx.hash })
 		},
-		[account?.address, activeChain?.unsupported, activeProfile?.id, getTypedData, signRequest, broadcast, sendTx]
+		[
+			account?.address,
+			activeChain?.unsupported,
+			activeProfile?.id,
+			getTypedData,
+			signRequest,
+			broadcast,
+			sendTx,
+			resolveOnAction,
+		]
 	)
 
 	return {

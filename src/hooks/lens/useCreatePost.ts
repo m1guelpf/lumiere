@@ -4,20 +4,21 @@ import toast from 'react-hot-toast'
 import { useCallback } from 'react'
 import { toastOn } from '@/lib/toasts'
 import { uploadJSON } from '@/lib/ipfs'
-import { Mutation } from '@/types/lens'
 import { Metadata } from '@/types/metadata'
 import { useMutation } from '@apollo/client'
+import useWaitForAction from './useWaitForAction'
 import LensHubProxy from '@/abis/LensHubProxy.json'
 import { useProfile } from '@/context/ProfileContext'
+import { Mutation, RelayerResult } from '@/types/lens'
 import BROADCAST_MUTATION from '@/graphql/broadcast/broadcast'
 import { ERROR_MESSAGE, LENSHUB_PROXY, RELAYER_ON } from '@/lib/consts'
 import CREATE_POST_SIG from '@/graphql/publications/create-post-request'
 import { useAccount, useContractWrite, useNetwork, useSignTypedData } from 'wagmi'
 
-type CreatePost = { createPost: (post: Metadata) => Promise<unknown>; loading: boolean; error?: Error }
-type CreatePostOptions = { onSuccess?: () => void }
+type CreatePost = { createPost: (post: Metadata) => Promise<() => Promise<unknown>>; loading: boolean; error?: Error }
+type CreatePostOptions = { onSuccess?: () => void; onIndex?: () => void }
 
-const useCreatePost = ({ onSuccess }: CreatePostOptions = {}): CreatePost => {
+const useCreatePost = ({ onSuccess, onIndex }: CreatePostOptions = {}): CreatePost => {
 	const { profile } = useProfile()
 	const { activeChain } = useNetwork()
 	const { data: account } = useAccount()
@@ -39,6 +40,7 @@ const useCreatePost = ({ onSuccess }: CreatePostOptions = {}): CreatePost => {
 	})
 	const {
 		writeAsync: sendTx,
+		data: txData,
 		isLoading: txLoading,
 		error: txError,
 	} = useContractWrite(
@@ -56,7 +58,7 @@ const useCreatePost = ({ onSuccess }: CreatePostOptions = {}): CreatePost => {
 			},
 		}
 	)
-	const [broadcast, { loading: gasslessLoading, error: gasslessError }] = useMutation<{
+	const [broadcast, { data: broadcastResult, loading: gasslessLoading, error: gasslessError }] = useMutation<{
 		broadcast: Mutation['broadcast']
 	}>(BROADCAST_MUTATION, {
 		onCompleted({ broadcast }) {
@@ -69,6 +71,12 @@ const useCreatePost = ({ onSuccess }: CreatePostOptions = {}): CreatePost => {
 		},
 	})
 	//#endregion
+
+	const { resolveOnAction } = useWaitForAction({
+		onParse: onIndex,
+		txHash: txData?.hash,
+		txId: (broadcastResult?.broadcast as RelayerResult)?.txId as string,
+	})
 
 	const createPost = useCallback(
 		async (post: Metadata) => {
@@ -124,7 +132,7 @@ const useCreatePost = ({ onSuccess }: CreatePostOptions = {}): CreatePost => {
 			const { v, r, s } = ethers.utils.splitSignature(signature)
 
 			if (RELAYER_ON) {
-				return toastOn(
+				const result = await toastOn(
 					async () => {
 						const {
 							data: { broadcast: result },
@@ -135,12 +143,16 @@ const useCreatePost = ({ onSuccess }: CreatePostOptions = {}): CreatePost => {
 						})
 
 						if ('reason' in result) throw result.reason
+
+						return result
 					},
 					{ loading: 'Sending transaction...', success: 'Transaction sent!', error: ERROR_MESSAGE }
 				)
+
+				return resolveOnAction({ txId: result.txId })
 			}
 
-			await toastOn(
+			const tx = await toastOn(
 				() =>
 					sendTx({
 						args: {
@@ -155,8 +167,19 @@ const useCreatePost = ({ onSuccess }: CreatePostOptions = {}): CreatePost => {
 					}),
 				{ loading: 'Sending transaction...', success: 'Transaction sent!', error: ERROR_MESSAGE }
 			)
+
+			return resolveOnAction({ txHash: tx.hash })
 		},
-		[account?.address, activeChain?.unsupported, profile?.id, getTypedData, signRequest, broadcast, sendTx]
+		[
+			account?.address,
+			activeChain?.unsupported,
+			profile?.id,
+			getTypedData,
+			signRequest,
+			broadcast,
+			sendTx,
+			resolveOnAction,
+		]
 	)
 
 	return {

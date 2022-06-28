@@ -214,7 +214,7 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 								)}
 							</div>
 							<div>
-								<NewComment videoId={video?.id} onChange={refetchComments} />
+								<NewComment videoId={video?.id} onIndex={refetchComments} />
 							</div>
 						</div>
 						<div className="space-y-6">

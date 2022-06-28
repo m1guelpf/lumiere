@@ -10,7 +10,7 @@ export function toastOn<T>(
 	opts?: DefaultToastOptions | undefined
 ): Promise<T> {
 	const id = toast.loading(msgs.loading, { ...opts, ...opts?.loading })
-	const promise = fn()
+	const promise = fn instanceof Function ? fn() : fn
 
 	promise
 		.then(async p => {

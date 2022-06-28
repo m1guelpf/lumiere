@@ -6,18 +6,23 @@ import { toastOn } from '@/lib/toasts'
 import { uploadJSON } from '@/lib/ipfs'
 import { Metadata } from '@/types/metadata'
 import { useMutation } from '@apollo/client'
+import useWaitForAction from './useWaitForAction'
 import LensHubProxy from '@/abis/LensHubProxy.json'
 import { useProfile } from '@/context/ProfileContext'
 import BROADCAST_MUTATION from '@/graphql/broadcast/broadcast'
 import { ERROR_MESSAGE, LENSHUB_PROXY, RELAYER_ON } from '@/lib/consts'
-import { Mutation, MutationCreateCommentTypedDataArgs } from '@/types/lens'
 import CREATE_COMMENT_SIG from '@/graphql/publications/create-comment-request'
+import { Mutation, MutationCreateCommentTypedDataArgs, RelayerResult } from '@/types/lens'
 import { useAccount, useContractWrite, useNetwork, useSignTypedData } from 'wagmi'
 
-type CreateComment = { createComment: (comment: Metadata) => Promise<unknown>; loading: boolean; error?: Error }
-type CreateCommentOptions = { onSuccess?: () => void }
+type CreateComment = {
+	createComment: (comment: Metadata) => Promise<() => Promise<unknown>>
+	loading: boolean
+	error?: Error
+}
+type CreateCommentOptions = { onSuccess?: () => void; onIndex?: () => void }
 
-const useCreateComment = (publicationId: number, { onSuccess }: CreateCommentOptions = {}): CreateComment => {
+const useCreateComment = (publicationId: number, { onSuccess, onIndex }: CreateCommentOptions = {}): CreateComment => {
 	const { profile } = useProfile()
 	const { activeChain } = useNetwork()
 	const { data: account } = useAccount()
@@ -41,6 +46,7 @@ const useCreateComment = (publicationId: number, { onSuccess }: CreateCommentOpt
 		},
 	})
 	const {
+		data: txData,
 		writeAsync: sendTx,
 		isLoading: txLoading,
 		error: txError,
@@ -59,7 +65,7 @@ const useCreateComment = (publicationId: number, { onSuccess }: CreateCommentOpt
 			},
 		}
 	)
-	const [broadcast, { loading: gasslessLoading, error: gasslessError }] = useMutation<{
+	const [broadcast, { data: broadcastResult, loading: gasslessLoading, error: gasslessError }] = useMutation<{
 		broadcast: Mutation['broadcast']
 	}>(BROADCAST_MUTATION, {
 		onCompleted({ broadcast }) {
@@ -73,11 +79,17 @@ const useCreateComment = (publicationId: number, { onSuccess }: CreateCommentOpt
 	})
 	//#endregion
 
+	const { resolveOnAction } = useWaitForAction({
+		onParse: onIndex,
+		txHash: txData?.hash,
+		txId: (broadcastResult?.broadcast as RelayerResult)?.txId as string,
+	})
+
 	const createComment = useCallback(
 		async (post: Metadata) => {
-			if (!account?.address) return toast.error('Please connect your wallet first.')
-			if (activeChain?.unsupported) return toast.error('Please change your network.')
-			if (!profile?.id) return toast.error('Please create a Lens profile first.')
+			if (!account?.address) throw toast.error('Please connect your wallet first.')
+			if (activeChain?.unsupported) throw toast.error('Please change your network.')
+			if (!profile?.id) throw toast.error('Please create a Lens profile first.')
 
 			const { id, typedData } = await toastOn(
 				async () => {
@@ -134,7 +146,7 @@ const useCreateComment = (publicationId: number, { onSuccess }: CreateCommentOpt
 			const { v, r, s } = ethers.utils.splitSignature(signature)
 
 			if (RELAYER_ON) {
-				return toastOn(
+				const result = await toastOn(
 					async () => {
 						const {
 							data: { broadcast: result },
@@ -145,12 +157,16 @@ const useCreateComment = (publicationId: number, { onSuccess }: CreateCommentOpt
 						})
 
 						if ('reason' in result) throw result.reason
+
+						return result
 					},
 					{ loading: 'Sending transaction...', success: 'Transaction sent!', error: ERROR_MESSAGE }
 				)
+
+				return resolveOnAction({ txId: result.txId })
 			}
 
-			await toastOn(
+			const tx = await toastOn(
 				() =>
 					sendTx({
 						args: {
@@ -168,6 +184,8 @@ const useCreateComment = (publicationId: number, { onSuccess }: CreateCommentOpt
 					}),
 				{ loading: 'Sending transaction...', success: 'Transaction sent!', error: ERROR_MESSAGE }
 			)
+
+			return resolveOnAction({ txHash: tx.hash })
 		},
 		[
 			publicationId,
@@ -178,6 +196,7 @@ const useCreateComment = (publicationId: number, { onSuccess }: CreateCommentOpt
 			signRequest,
 			broadcast,
 			sendTx,
+			resolveOnAction,
 		]
 	)
 

@@ -1,17 +1,22 @@
 import { v4 as uuidv4 } from 'uuid'
-import { APP_ID } from '@/lib/consts'
 import LensAvatar from './LensAvatar'
+import { toastOn } from '@/lib/toasts'
 import { useRouter } from 'next/router'
 import { MetadataVersions } from '@/types/metadata'
+import { APP_ID, ERROR_MESSAGE } from '@/lib/consts'
 import { useProfile } from '@/context/ProfileContext'
 import useCreateComment from '@/hooks/lens/useCreateComment'
 import { classNames, trimIndentedSpaces } from '@/lib/utils'
 import { FC, FocusEventHandler, FormEventHandler, useState } from 'react'
 
-const NewComment: FC<{ videoId: number; onChange?: () => void }> = ({ videoId, onChange }) => {
+const NewComment: FC<{ videoId: number; onChange?: () => void; onIndex?: () => void }> = ({
+	videoId,
+	onChange,
+	onIndex,
+}) => {
 	const router = useRouter()
 	const { profile, isAuthenticated } = useProfile()
-	const { createComment, loading } = useCreateComment(videoId)
+	const { createComment, loading } = useCreateComment(videoId, { onIndex })
 
 	const [comment, setComment] = useState<string>('')
 	const [inputExpanded, setInputExpanded] = useState<boolean>(false)
@@ -25,7 +30,7 @@ const NewComment: FC<{ videoId: number; onChange?: () => void }> = ({ videoId, o
 	const handleFormSubmit: FormEventHandler<HTMLFormElement> = async event => {
 		event.preventDefault()
 
-		await createComment({
+		const waitForIndex = await createComment({
 			metadata_id: uuidv4(),
 			version: MetadataVersions.one,
 			content: trimIndentedSpaces(comment),
@@ -40,6 +45,12 @@ const NewComment: FC<{ videoId: number; onChange?: () => void }> = ({ videoId, o
 			],
 			media: [],
 			appId: APP_ID,
+		})
+
+		await toastOn(waitForIndex, {
+			loading: 'Publishing comment...',
+			success: 'Comment published!',
+			error: ERROR_MESSAGE,
 		})
 
 		onChange && onChange()

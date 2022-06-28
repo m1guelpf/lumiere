@@ -1,8 +1,9 @@
 import toast from 'react-hot-toast'
 import { v4 as uuidv4 } from 'uuid'
-import { APP_ID } from '@/lib/consts'
+import { toastOn } from '@/lib/toasts'
 import { useRouter } from 'next/router'
 import { trimIndentedSpaces } from '@/lib/utils'
+import { APP_ID, ERROR_MESSAGE } from '@/lib/consts'
 import { useProfile } from '@/context/ProfileContext'
 import useCreatePost from '@/hooks/lens/useCreatePost'
 import { FC, FormEventHandler, useEffect, useState } from 'react'
@@ -32,7 +33,7 @@ const UploadPage: FC = () => {
 		if (!videoCID) return toast.error('Please wait for the video to finish uploading.')
 		if (!thumbnailCID) return toast.error('Please wait for the thumbnail to finish uploading.')
 
-		await createPost({
+		const waitForIndex = await createPost({
 			version: MetadataVersions.one,
 			metadata_id: uuidv4(),
 			description: trimIndentedSpaces(description),
@@ -56,10 +57,15 @@ const UploadPage: FC = () => {
 			appId: APP_ID,
 		})
 
+		await toastOn(waitForIndex, {
+			loading: 'Finishing upload...',
+			success: 'Video uploaded!',
+			error: ERROR_MESSAGE,
+		})
+
 		setTitle('')
 		setDescription('')
 		router.push(`/channel/${profile.handle}`)
-		toast.success('Published video!')
 	}
 
 	return (
