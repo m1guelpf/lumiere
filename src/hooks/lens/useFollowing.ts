@@ -1,16 +1,16 @@
-import { useAccount } from 'wagmi'
 import { useQuery } from '@apollo/client'
+import { useProfile } from '@/context/ProfileContext'
 import DOES_FOLLOW from '@/graphql/profiles/is-following'
 
 const useFollowing = (profileId: string): { data: boolean; refetch: () => void } => {
-	const { data: accountData } = useAccount()
+	const { profile } = useProfile()
 
-	const { data: followData, refetch } = useQuery(DOES_FOLLOW, {
-		variables: { address: accountData?.address, profileId },
-		skip: !accountData?.address || !profileId,
+	const { data: followData, refetch } = useQuery<{ profile: { isFollowedByMe: boolean } }>(DOES_FOLLOW, {
+		variables: { profileId },
+		skip: !profile || !profileId,
 	})
 
-	return { data: followData?.doesFollow?.[0]?.follows ?? false, refetch }
+	return { data: followData?.profile?.isFollowedByMe, refetch }
 }
 
 export default useFollowing

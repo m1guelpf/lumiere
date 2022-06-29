@@ -2,7 +2,6 @@ import Link from 'next/link'
 import Meta from '@/components/Meta'
 import format from 'date-fns/format'
 import { APP_NAME } from '@/lib/consts'
-import { toast } from 'react-hot-toast'
 import { useQuery } from '@apollo/client'
 import { nodeClient } from '@/lib/apollo'
 import Spinner from '@/components/Spinner'
@@ -16,28 +15,28 @@ import FollowButton from '@/components/FollowButton'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { GetStaticPaths, GetStaticProps } from 'next'
 import { BadgeCheckIcon } from '@heroicons/react/solid'
+import StateAwareIcon from '@/components/StateAwareIcon'
 import { LensVideoRenderer } from '@/components/LensVideo'
+import { FlagIcon, ShareIcon } from '@heroicons/react/outline'
 import GET_PUBLICATION from '@/graphql/publications/get-publication'
 import useMirrorPublication from '@/hooks/lens/useMirrorPublication'
 import LensVideoDescription from '@/components/LensVideoDescription'
 import useCollectPublication from '@/hooks/lens/useCollectPublication'
 import useReactToPublication from '@/hooks/lens/useReactToPublication'
-import { Comment, Maybe, PaginatedPublicationResult, Post } from '@/types/lens'
 import GET_PUBLICATION_COMMENTS from '@/graphql/publications/get-publication-comments'
-import {
-	FlagIcon,
-	SaveAsIcon,
-	ShareIcon,
-	SwitchHorizontalIcon,
-	ThumbDownIcon,
-	ThumbUpIcon,
-} from '@heroicons/react/outline'
+import { Comment, Maybe, PaginatedPublicationResult, Post, ReactionTypes } from '@/types/lens'
 
 const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 	const [reportOpen, setReportOpen] = useState<boolean>(false)
-	const { mirrorPublication, loading: mirrorLoading } = useMirrorPublication()
-	const { collectPublication, loading: collectLoading } = useCollectPublication()
-	const { upvotePublication, downvotePublication, loading: reactionLoading } = useReactToPublication()
+	const { data: hasMirrored, mirrorPublication, loading: mirrorLoading } = useMirrorPublication(video?.id)
+	const { data: hasCollected, collectPublication, loading: collectLoading } = useCollectPublication(video?.id)
+	const {
+		removeReaction,
+		data: reactionData,
+		upvotePublication,
+		downvotePublication,
+		loading: reactionLoading,
+	} = useReactToPublication(video?.id)
 
 	const {
 		data: commentData,
@@ -74,31 +73,42 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 								<div className="flex items-center md:space-x-6 justify-between md:justify-start w-full md:w-auto">
 									<div className="flex items-center md:space-x-1">
 										<button
-											onClick={() => upvotePublication(video?.id)}
+											onClick={
+												reactionData.userReaction == ReactionTypes.Upvote
+													? () => removeReaction(video?.id, ReactionTypes.Upvote)
+													: () => upvotePublication(video?.id)
+											}
 											className="hover:bg-gray-100 rounded-full p-2"
 										>
-											{reactionLoading ? (
-												<Spinner className="w-5 md:w-6 h-5 md:h-6" />
-											) : (
-												<ThumbUpIcon className="w-5 md:w-6 h-5 md:h-6" />
-											)}
+											<StateAwareIcon
+												iconName="ThumbUp"
+												loading={reactionLoading}
+												active={reactionData.userReaction == ReactionTypes.Upvote}
+												className="w-5 md:w-6 h-5 md:h-6"
+											/>
 										</button>
 										<span>
 											{video ? (
-												video.stats.totalUpvotes - video.stats.totalDownvotes
+												(reactionData.totalUpvotes ?? video.stats.totalUpvotes) -
+												(reactionData.totalDownvotes ?? video.stats.totalDownvotes)
 											) : (
 												<Skeleton width={15} inline />
 											)}
 										</span>
 										<button
-											onClick={() => downvotePublication(video?.id)}
+											onClick={
+												reactionData.userReaction == ReactionTypes.Downvote
+													? () => removeReaction(video?.id, ReactionTypes.Downvote)
+													: () => downvotePublication(video?.id)
+											}
 											className="hover:bg-gray-100 rounded-full p-2"
 										>
-											{reactionLoading ? (
-												<Spinner className="w-5 md:w-6 h-5 md:h-6" />
-											) : (
-												<ThumbDownIcon className="w-5 md:w-6 h-5 md:h-6" />
-											)}
+											<StateAwareIcon
+												iconName="ThumbDown"
+												loading={reactionLoading}
+												active={reactionData.userReaction == ReactionTypes.Downvote}
+												className="w-5 md:w-6 h-5 md:h-6"
+											/>
 										</button>
 									</div>
 									<div className="flex items-center space-x-1">
@@ -110,13 +120,15 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 														'FollowOnlyReferenceModuleSettings',
 												})
 											}
-											className="hover:bg-gray-100 rounded-full p-2"
+											disabled={hasMirrored}
+											className="hover:bg-gray-100 disabled:hover:bg-transparent rounded-full p-2"
 										>
-											{mirrorLoading ? (
-												<Spinner className="w-5 md:w-6 h-5 md:h-6" />
-											) : (
-												<SwitchHorizontalIcon className="w-5 md:w-6 h-5 md:h-6" />
-											)}
+											<StateAwareIcon
+												iconName="SwitchHorizontal"
+												loading={mirrorLoading}
+												active={hasMirrored}
+												className="w-5 md:w-6 h-5 md:h-6"
+											/>
 										</button>
 										<span>
 											{video?.stats?.totalAmountOfMirrors ?? <Skeleton width={15} inline />}
@@ -124,14 +136,16 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 									</div>
 									<div className="flex items-center space-x-1">
 										<button
+											disabled={hasCollected}
 											onClick={() => collectPublication(video?.id)}
-											className="hover:bg-gray-100 rounded-full p-2"
+											className="hover:bg-gray-100 disabled:hover:bg-transparent rounded-full p-2"
 										>
-											{collectLoading ? (
-												<Spinner className="w-5 md:w-6 h-5 md:h-6" />
-											) : (
-												<SaveAsIcon className="w-5 md:w-6 h-5 md:h-6" />
-											)}
+											<StateAwareIcon
+												iconName="SaveAs"
+												loading={collectLoading}
+												active={hasCollected}
+												className="w-5 md:w-6 h-5 md:h-6"
+											/>
 										</button>
 										<span>
 											{video?.stats?.totalAmountOfCollects ?? <Skeleton width={15} inline />}

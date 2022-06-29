@@ -3,26 +3,52 @@ import { omit } from '@/lib/utils'
 import toast from 'react-hot-toast'
 import { useCallback } from 'react'
 import { toastOn } from '@/lib/toasts'
-import { useMutation } from '@apollo/client'
+import useWaitForAction from './useWaitForAction'
 import LensHubProxy from '@/abis/LensHubProxy.json'
 import { useProfile } from '@/context/ProfileContext'
+import { gql, useMutation, useQuery } from '@apollo/client'
 import BROADCAST_MUTATION from '@/graphql/broadcast/broadcast'
 import { ERROR_MESSAGE, LENSHUB_PROXY, RELAYER_ON } from '@/lib/consts'
-import { useAccount, useContractWrite, useNetwork, useSignTypedData } from 'wagmi'
-import { Mutation, MutationCreateMirrorTypedDataArgs, ReferenceModuleParams } from '@/types/lens'
 import CREATE_MIRROR_SIG from '@/graphql/publications/mirror-publication-request'
+import { useAccount, useContractWrite, useNetwork, useSignTypedData } from 'wagmi'
+import { Mutation, MutationCreateMirrorTypedDataArgs, ReferenceModuleParams, RelayerResult } from '@/types/lens'
 
 type MirrorPublication = {
-	mirrorPublication: (publicationId: string, refModule: ReferenceModuleParams) => Promise<unknown>
+	data: boolean
+	mirrorPublication: (publicationId: string, refModule: ReferenceModuleParams) => Promise<() => Promise<unknown>>
 	loading: boolean
 	error?: Error
 }
-type MirrorPublicationOptions = { onSuccess?: () => void }
+type MirrorPublicationOptions = { onSuccess?: () => void; onIndex?: () => void }
 
-const useMirrorPublication = ({ onSuccess }: MirrorPublicationOptions = {}): MirrorPublication => {
+const HAS_MIRRORED_QUERY = gql`
+	query HasMirroredPublication($publicationId: InternalPublicationId!, $profileId: ProfileId) {
+		publication(request: { publicationId: $publicationId }) {
+			... on Post {
+				mirrors(by: $profileId)
+			}
+			... on Comment {
+				mirrors(by: $profileId)
+			}
+		}
+	}
+`
+
+const useMirrorPublication = (
+	publicationId?: string,
+	{ onSuccess, onIndex }: MirrorPublicationOptions = {}
+): MirrorPublication => {
 	const { profile } = useProfile()
 	const { activeChain } = useNetwork()
 	const { data: account } = useAccount()
+
+	const { data: collectedData, refetch } = useQuery<
+		{ publication: { mirrors: string[] } },
+		{ publicationId: string; profileId?: string }
+	>(HAS_MIRRORED_QUERY, {
+		variables: { publicationId, profileId: profile?.id },
+		skip: !publicationId || !profile,
+	})
 
 	//#region Data Hooks
 	const [getTypedData, { loading: dataLoading, error: dataError }] = useMutation<
@@ -43,6 +69,7 @@ const useMirrorPublication = ({ onSuccess }: MirrorPublicationOptions = {}): Mir
 		},
 	})
 	const {
+		data: txData,
 		writeAsync: sendTx,
 		isLoading: txLoading,
 		error: txError,
@@ -61,7 +88,7 @@ const useMirrorPublication = ({ onSuccess }: MirrorPublicationOptions = {}): Mir
 			},
 		}
 	)
-	const [broadcast, { loading: gasslessLoading, error: gasslessError }] = useMutation<{
+	const [broadcast, { data: broadcastResult, loading: gasslessLoading, error: gasslessError }] = useMutation<{
 		broadcast: Mutation['broadcast']
 	}>(BROADCAST_MUTATION, {
 		onCompleted({ broadcast }) {
@@ -75,11 +102,21 @@ const useMirrorPublication = ({ onSuccess }: MirrorPublicationOptions = {}): Mir
 	})
 	//#endregion
 
+	const { resolveOnAction } = useWaitForAction({
+		onParse: () => {
+			refetch()
+
+			onIndex && onIndex()
+		},
+		txHash: txData?.hash,
+		txId: (broadcastResult?.broadcast as RelayerResult)?.txId as string,
+	})
+
 	const mirrorPublication = useCallback(
 		async (publicationId: string, refModule: ReferenceModuleParams) => {
-			if (!account?.address) return toast.error('Please connect your wallet first.')
-			if (activeChain?.unsupported) return toast.error('Please change your network.')
-			if (!profile?.id) return toast.error('Please create a Lens profile first.')
+			if (!account?.address) throw toast.error('Please connect your wallet first.')
+			if (activeChain?.unsupported) throw toast.error('Please change your network.')
+			if (!profile?.id) throw toast.error('Please create a Lens profile first.')
 
 			const { id, typedData } = await toastOn(
 				async () => {
@@ -123,7 +160,7 @@ const useMirrorPublication = ({ onSuccess }: MirrorPublicationOptions = {}): Mir
 			const { v, r, s } = ethers.utils.splitSignature(signature)
 
 			if (RELAYER_ON) {
-				return toastOn(
+				const result = await toastOn(
 					async () => {
 						const {
 							data: { broadcast: result },
@@ -134,12 +171,16 @@ const useMirrorPublication = ({ onSuccess }: MirrorPublicationOptions = {}): Mir
 						})
 
 						if ('reason' in result) throw result.reason
+
+						return result
 					},
 					{ loading: 'Sending transaction...', success: 'Transaction sent!', error: ERROR_MESSAGE }
 				)
+
+				return resolveOnAction({ txId: result.txId })
 			}
 
-			await toastOn(
+			const tx = await toastOn(
 				() =>
 					sendTx({
 						args: {
@@ -154,12 +195,24 @@ const useMirrorPublication = ({ onSuccess }: MirrorPublicationOptions = {}): Mir
 					}),
 				{ loading: 'Sending transaction...', success: 'Transaction sent!', error: ERROR_MESSAGE }
 			)
+
+			return resolveOnAction({ txHash: tx.hash })
 		},
-		[account?.address, activeChain?.unsupported, profile?.id, getTypedData, signRequest, broadcast, sendTx]
+		[
+			account?.address,
+			activeChain?.unsupported,
+			profile?.id,
+			getTypedData,
+			signRequest,
+			broadcast,
+			sendTx,
+			resolveOnAction,
+		]
 	)
 
 	return {
 		mirrorPublication,
+		data: collectedData?.publication?.mirrors?.length > 0,
 		loading: dataLoading || sigLoading || txLoading || gasslessLoading,
 		error: dataError || sigError || txError || gasslessError,
 	}

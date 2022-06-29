@@ -207,6 +207,7 @@ export type Comment = {
 	createdAt: Scalars['DateTime']
 	/** This will bring back the first comment of a comment and only be defined if using `publication` query and `commentOf` */
 	firstComment?: Maybe<Comment>
+	hasCollectedByMe: Scalars['Boolean']
 	/** If the publication has been hidden if it has then the content and media is not available */
 	hidden: Scalars['Boolean']
 	/** The internal publication id */
@@ -215,6 +216,7 @@ export type Comment = {
 	mainPost: MainPostReference
 	/** The metadata for the post */
 	metadata: MetadataOutput
+	mirrors: Array<Scalars['InternalPublicationId']>
 	/** The on chain content uri could be `ipfs://` or `https` */
 	onChainContentURI: Scalars['String']
 	/** The profile ref */
@@ -224,6 +226,11 @@ export type Comment = {
 	referenceModule?: Maybe<ReferenceModule>
 	/** The publication stats */
 	stats: PublicationStats
+}
+
+/** The social comment */
+export type CommentMirrorsArgs = {
+	by?: InputMaybe<Scalars['ProfileId']>
 }
 
 /** The social comment */
@@ -1312,6 +1319,7 @@ export type Mirror = {
 	collectNftAddress?: Maybe<Scalars['ContractAddress']>
 	/** The date the post was created on */
 	createdAt: Scalars['DateTime']
+	hasCollectedByMe: Scalars['Boolean']
 	/** If the publication has been hidden if it has then the content and media is not available */
 	hidden: Scalars['Boolean']
 	/** The internal publication id */
@@ -1683,6 +1691,13 @@ export type PaginatedNotificationResult = {
 	pageInfo: PaginatedResultInfo
 }
 
+/** The paginated wallet result */
+export type PaginatedProfilePublicationsForSaleResult = {
+	__typename?: 'PaginatedProfilePublicationsForSaleResult'
+	items: Array<PublicationForSale>
+	pageInfo: PaginatedResultInfo
+}
+
 /** The paginated profile result */
 export type PaginatedProfileResult = {
 	__typename?: 'PaginatedProfileResult'
@@ -1747,12 +1762,14 @@ export type Post = {
 	collectedBy?: Maybe<Wallet>
 	/** The date the post was created on */
 	createdAt: Scalars['DateTime']
+	hasCollectedByMe: Scalars['Boolean']
 	/** If the publication has been hidden if it has then the content and media is not available */
 	hidden: Scalars['Boolean']
 	/** The internal publication id */
 	id: Scalars['InternalPublicationId']
 	/** The metadata for the post */
 	metadata: MetadataOutput
+	mirrors: Array<Scalars['InternalPublicationId']>
 	/** The on chain content uri could be `ipfs://` or `https` */
 	onChainContentURI: Scalars['String']
 	/** The profile ref */
@@ -1762,6 +1779,11 @@ export type Post = {
 	referenceModule?: Maybe<ReferenceModule>
 	/** The publication stats */
 	stats: PublicationStats
+}
+
+/** The social post */
+export type PostMirrorsArgs = {
+	by?: InputMaybe<Scalars['ProfileId']>
 }
 
 /** The social post */
@@ -1790,6 +1812,8 @@ export type Profile = {
 	id: Scalars['ProfileId']
 	/** Is the profile default */
 	isDefault: Scalars['Boolean']
+	isFollowedByMe: Scalars['Boolean']
+	isFollowing: Scalars['Boolean']
 	/** Metadata url */
 	metadata?: Maybe<Scalars['Url']>
 	/** Name of the profile */
@@ -1800,6 +1824,11 @@ export type Profile = {
 	picture?: Maybe<ProfileMedia>
 	/** Profile stats */
 	stats: ProfileStats
+}
+
+/** The Profile */
+export type ProfileIsFollowingArgs = {
+	who?: InputMaybe<Scalars['ProfileId']>
 }
 
 export type ProfileFollowModuleBeenRedeemedRequest = {
@@ -1820,6 +1849,15 @@ export type ProfileFollowModuleSettings = {
 }
 
 export type ProfileMedia = MediaSet | NftImage
+
+export type ProfilePublicationsForSaleRequest = {
+	cursor?: InputMaybe<Scalars['Cursor']>
+	limit?: InputMaybe<Scalars['LimitScalar']>
+	/** Profile id */
+	profileId: Scalars['ProfileId']
+	/** The App Id */
+	sources?: InputMaybe<Array<Scalars['Sources']>>
+}
 
 export type ProfileQueryRequest = {
 	cursor?: InputMaybe<Scalars['Cursor']>
@@ -1899,6 +1937,8 @@ export type ProfileStats = {
 }
 
 export type Publication = Comment | Mirror | Post
+
+export type PublicationForSale = Comment | Post
 
 export type PublicationMetadataStatus = {
 	__typename?: 'PublicationMetadataStatus'
@@ -2033,7 +2073,9 @@ export type Query = {
 	following: PaginatedFollowingResult
 	generateModuleCurrencyApprovalData: GenerateModuleCurrencyApproval
 	globalProtocolStats: GlobalProtocolStats
+	/** @deprecated you should use the `hasCollectedByMe` field resolver on the publication, this will be removed from on 1st of July 2022 */
 	hasCollected: Array<HasCollectedResult>
+	/** @deprecated you should use the `mirrors` field resolver passing in the profile id the user is active on, this lives on the publication, this will be removed from on 1st of July 2022 */
 	hasMirrored: Array<HasMirroredResult>
 	hasTxHashBeenIndexed: TransactionResult
 	nftOwnershipChallenge: NftOwnershipChallengeResult
@@ -2043,6 +2085,7 @@ export type Query = {
 	ping: Scalars['String']
 	profile?: Maybe<Profile>
 	profileFollowModuleBeenRedeemed: Scalars['Boolean']
+	profilePublicationsForSale: PaginatedProfilePublicationsForSaleResult
 	profileRevenue: ProfileRevenueResult
 	profiles: PaginatedProfileResult
 	publication?: Maybe<Publication>
@@ -2134,6 +2177,10 @@ export type QueryProfileArgs = {
 
 export type QueryProfileFollowModuleBeenRedeemedArgs = {
 	request: ProfileFollowModuleBeenRedeemedRequest
+}
+
+export type QueryProfilePublicationsForSaleArgs = {
+	request: ProfilePublicationsForSaleRequest
 }
 
 export type QueryProfileRevenueArgs = {
@@ -2388,6 +2435,17 @@ export type TimelineRequest = {
 	profileId: Scalars['ProfileId']
 	/** The App Id */
 	sources?: InputMaybe<Array<Scalars['Sources']>>
+	/** The timeline types you wish to include, if nothing passed in will bring back all */
+	timelineTypes?: InputMaybe<Array<TimelineType>>
+}
+
+/** Timeline types */
+export enum TimelineType {
+	CollectComment = 'COLLECT_COMMENT',
+	CollectPost = 'COLLECT_POST',
+	Comment = 'COMMENT',
+	Mirror = 'MIRROR',
+	Post = 'POST',
 }
 
 export type TransactionError = {
@@ -2504,6 +2562,7 @@ const result: PossibleTypesResultData = {
 		],
 		ProfileMedia: ['MediaSet', 'NftImage'],
 		Publication: ['Comment', 'Mirror', 'Post'],
+		PublicationForSale: ['Comment', 'Post'],
 		PublicationSearchResultItem: ['Comment', 'Post'],
 		ReferenceModule: ['FollowOnlyReferenceModuleSettings'],
 		RelayResult: ['RelayError', 'RelayerResult'],

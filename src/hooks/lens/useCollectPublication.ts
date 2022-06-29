@@ -3,27 +3,56 @@ import { omit } from '@/lib/utils'
 import toast from 'react-hot-toast'
 import { useCallback } from 'react'
 import { toastOn } from '@/lib/toasts'
-import { useMutation } from '@apollo/client'
+import useWaitForAction from './useWaitForAction'
 import LensHubProxy from '@/abis/LensHubProxy.json'
 import { useProfile } from '@/context/ProfileContext'
+import { gql, useMutation, useQuery } from '@apollo/client'
 import BROADCAST_MUTATION from '@/graphql/broadcast/broadcast'
 import COLLECT_SIG from '@/graphql/publications/collect-request'
 import { ERROR_MESSAGE, LENSHUB_PROXY, RELAYER_ON } from '@/lib/consts'
-import { Mutation, MutationCreateCollectTypedDataArgs } from '@/types/lens'
 import { useAccount, useContractWrite, useNetwork, useSignTypedData } from 'wagmi'
+import { Mutation, MutationCreateCollectTypedDataArgs, RelayerResult } from '@/types/lens'
 
 type CollectPublication = {
 	collectPublication: (publicationId: string) => Promise<unknown>
+	data: boolean
 	loading: boolean
 	error?: Error
+	refetch?: () => void
 }
-type CollectPublicationOptions = { onSuccess?: () => void }
+type CollectPublicationOptions = { onSuccess?: () => void; onIndex?: () => void }
+
+const HAS_COLLECTED_QUERY = gql`
+	query HasCollectedPublication($publicationId: InternalPublicationId!) {
+		publication(request: { publicationId: $publicationId }) {
+			... on Post {
+				hasCollectedByMe
+			}
+			... on Comment {
+				hasCollectedByMe
+			}
+			... on Mirror {
+				hasCollectedByMe
+			}
+		}
+	}
+`
 
 // @TODO: Needs to account for allowance & balance for paid collects
-const useCollectPublication = ({ onSuccess }: CollectPublicationOptions = {}): CollectPublication => {
+const useCollectPublication = (
+	publicationId?: string,
+	{ onSuccess, onIndex }: CollectPublicationOptions = {}
+): CollectPublication => {
 	const { profile } = useProfile()
 	const { activeChain } = useNetwork()
 	const { data: account } = useAccount()
+	const { data: collectedData, refetch } = useQuery<
+		{ publication: { hasCollectedByMe: boolean } },
+		{ publicationId: string }
+	>(HAS_COLLECTED_QUERY, {
+		variables: { publicationId },
+		skip: !publicationId || !profile,
+	})
 
 	//#region Data Hooks
 	const [getTypedData, { loading: dataLoading, error: dataError }] = useMutation<
@@ -44,6 +73,7 @@ const useCollectPublication = ({ onSuccess }: CollectPublicationOptions = {}): C
 		},
 	})
 	const {
+		data: txData,
 		writeAsync: sendTx,
 		isLoading: txLoading,
 		error: txError,
@@ -62,7 +92,7 @@ const useCollectPublication = ({ onSuccess }: CollectPublicationOptions = {}): C
 			},
 		}
 	)
-	const [broadcast, { loading: gasslessLoading, error: gasslessError }] = useMutation<{
+	const [broadcast, { data: broadcastResult, loading: gasslessLoading, error: gasslessError }] = useMutation<{
 		broadcast: Mutation['broadcast']
 	}>(BROADCAST_MUTATION, {
 		onCompleted({ broadcast }) {
@@ -75,6 +105,16 @@ const useCollectPublication = ({ onSuccess }: CollectPublicationOptions = {}): C
 		},
 	})
 	//#endregion
+
+	const { resolveOnAction } = useWaitForAction({
+		onParse: () => {
+			onIndex && onIndex()
+
+			refetch()
+		},
+		txHash: txData?.hash,
+		txId: (broadcastResult?.broadcast as RelayerResult)?.txId as string,
+	})
 
 	const collectPublication = useCallback(
 		async (publicationId: string) => {
@@ -112,7 +152,7 @@ const useCollectPublication = ({ onSuccess }: CollectPublicationOptions = {}): C
 			const { v, r, s } = ethers.utils.splitSignature(signature)
 
 			if (RELAYER_ON) {
-				return toastOn(
+				const result = await toastOn(
 					async () => {
 						const {
 							data: { broadcast: result },
@@ -123,12 +163,16 @@ const useCollectPublication = ({ onSuccess }: CollectPublicationOptions = {}): C
 						})
 
 						if ('reason' in result) throw result.reason
+
+						return result
 					},
 					{ loading: 'Sending transaction...', success: 'Transaction sent!', error: ERROR_MESSAGE }
 				)
+
+				return resolveOnAction({ txId: result.txId })
 			}
 
-			await toastOn(
+			const tx = await toastOn(
 				() =>
 					sendTx({
 						args: {
@@ -141,14 +185,27 @@ const useCollectPublication = ({ onSuccess }: CollectPublicationOptions = {}): C
 					}),
 				{ loading: 'Sending transaction...', success: 'Transaction sent!', error: ERROR_MESSAGE }
 			)
+
+			return resolveOnAction({ txHash: tx.hash })
 		},
-		[account?.address, activeChain?.unsupported, profile?.id, getTypedData, signRequest, broadcast, sendTx]
+		[
+			account?.address,
+			activeChain?.unsupported,
+			profile?.id,
+			getTypedData,
+			signRequest,
+			broadcast,
+			sendTx,
+			resolveOnAction,
+		]
 	)
 
 	return {
+		refetch,
 		collectPublication,
-		loading: dataLoading || sigLoading || txLoading || gasslessLoading,
+		data: collectedData?.publication?.hasCollectedByMe,
 		error: dataError || sigError || txError || gasslessError,
+		loading: dataLoading || sigLoading || txLoading || gasslessLoading,
 	}
 }
 
