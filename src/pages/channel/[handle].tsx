@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { FC, useMemo } from 'react'
 import Meta from '@/components/Meta'
 import { APP_NAME } from '@/lib/consts'
@@ -10,13 +11,15 @@ import LensBanner from '@/components/LensBanner'
 import VerifiedIcon from '@/components/VerifiedIcon'
 import FollowButton from '@/components/FollowButton'
 import { GetStaticPaths, GetStaticProps } from 'next'
-import { GlobeAltIcon } from '@heroicons/react/outline'
+import { useProfile } from '@/context/ProfileContext'
 import TwitterIcon from '@/components/Icons/TwitterIcon'
 import GET_PROFILE from '@/graphql/profiles/get-profile'
+import { CogIcon, GlobeAltIcon } from '@heroicons/react/outline'
 import { Post, Profile, Query, SingleProfileQueryRequest } from '@/types/lens'
 import GET_USER_PUBLICATIONS from '@/graphql/publications/get-user-publications'
 
 const ChannelPage: FC<{ profile: Profile }> = ({ profile }) => {
+	const { profile: activeProfile } = useProfile()
 	const { data: videoData, loading: loadingVideos } = useQuery<{ videos: Query['publications'] }>(
 		GET_USER_PUBLICATIONS,
 		{
@@ -88,7 +91,17 @@ const ChannelPage: FC<{ profile: Profile }> = ({ profile }) => {
 							</div>
 						</div>
 						<div className="text-gray-600 flex flex-row-reverse md:flex-col justify-start w-full md:w-auto">
-							<FollowButton profile={profile} />
+							<div className="flex items-center space-x-2">
+								<FollowButton profile={profile} />
+								{activeProfile && profile?.id === activeProfile?.id && (
+									<Link
+										href="/settings"
+										className="px-3 py-2 bg-gray-200 uppercase text-gray-600 font-medium text-sm rounded-md"
+									>
+										<CogIcon className="w-5 h-5" />
+									</Link>
+								)}
+							</div>
 							<p className="mt-2 font-hairline text-sm text-center md:text-right mr-2 md:mr-0">
 								{profile ? `${profile?.stats?.totalFollowers} subscribers` : <Skeleton width={80} />}
 							</p>
