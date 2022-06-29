@@ -7,10 +7,10 @@ import Skeleton from 'react-loading-skeleton'
 import VideoCard from '@/components/VideoCard'
 import LensAvatar from '@/components/LensAvatar'
 import LensBanner from '@/components/LensBanner'
+import VerifiedIcon from '@/components/VerifiedIcon'
 import FollowButton from '@/components/FollowButton'
 import { GetStaticPaths, GetStaticProps } from 'next'
 import { GlobeAltIcon } from '@heroicons/react/outline'
-import { BadgeCheckIcon } from '@heroicons/react/solid'
 import TwitterIcon from '@/components/Icons/TwitterIcon'
 import GET_PROFILE from '@/graphql/profiles/get-profile'
 import { Post, Profile, Query, SingleProfileQueryRequest } from '@/types/lens'
@@ -72,7 +72,7 @@ const ChannelPage: FC<{ profile: Profile }> = ({ profile }) => {
 					})()}
 				</div>
 			</div>
-			<div className="-mt-1 bg-gray-200">
+			<div className="-mt-1 bg-gray-100">
 				<div className="">
 					<div className="flex flex-col md:flex-row justify-between items-center py-4 px-4 md:px-16 space-y-6 md:space-y-0">
 						<div className="flex items-center space-x-6">
@@ -80,7 +80,7 @@ const ChannelPage: FC<{ profile: Profile }> = ({ profile }) => {
 							<div className="space-y-1">
 								<div className="flex items-baseline space-x-1">
 									<p className="text-2xl">{profile?.name ?? profile?.handle ?? <Skeleton />}</p>
-									<BadgeCheckIcon className="w-4 h-4 text-gray-600" />
+									<VerifiedIcon profileId={profile?.id} className="w-4 h-4 text-gray-600" />
 								</div>
 								<p className="text-xs md:text-sm max-w-prose text-gray-600">
 									{profile ? profile.bio : <Skeleton count={2} width={230} />}

@@ -13,8 +13,8 @@ import { linkify, shareLink } from '@/lib/utils'
 import ReportModal from '@/components/ReportModal'
 import FollowButton from '@/components/FollowButton'
 import { formatDistanceToNowStrict } from 'date-fns'
+import VerifiedIcon from '@/components/VerifiedIcon'
 import { GetStaticPaths, GetStaticProps } from 'next'
-import { BadgeCheckIcon } from '@heroicons/react/solid'
 import StateAwareIcon from '@/components/StateAwareIcon'
 import { LensVideoRenderer } from '@/components/LensVideo'
 import { FlagIcon, ShareIcon } from '@heroicons/react/outline'
@@ -189,7 +189,10 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 										<p className="font-medium">
 											{video?.profile?.name ?? video?.profile?.handle ?? <Skeleton width={150} />}
 										</p>
-										<BadgeCheckIcon className="w-4 h-4 text-gray-600" />
+										<VerifiedIcon
+											profileId={video?.profile?.id}
+											className="w-4 h-4 text-gray-600"
+										/>
 									</Link>
 									<p className="text-xs text-gray-500">
 										{(video && `${video?.profile?.stats?.totalFollowers} subscribers`) ?? (
@@ -242,7 +245,10 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 												className="font-medium text-black text-sm flex items-center space-x-1"
 											>
 												<span>{comment.profile.name ?? comment.profile.handle}</span>
-												<BadgeCheckIcon className="w-3 h-3 text-gray-600" />
+												<VerifiedIcon
+													profileId={comment?.profile?.id}
+													className="w-3 h-3 text-gray-600"
+												/>
 											</Link>
 											<p className="text-xs text-gray-500">
 												{formatDistanceToNowStrict(new Date(comment.createdAt))} ago

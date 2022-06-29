@@ -3,8 +3,8 @@ import Image from 'next/image'
 import { Post } from '@/types/lens'
 import { FC, useMemo } from 'react'
 import LensAvatar from './LensAvatar'
+import VerifiedIcon from './VerifiedIcon'
 import Skeleton from 'react-loading-skeleton'
-import { BadgeCheckIcon } from '@heroicons/react/solid'
 import { getImageUrl, includesImage, normalizeUrl } from '@/lib/media'
 import formatDistanceToNowStrict from 'date-fns/formatDistanceToNowStrict'
 
@@ -44,7 +44,7 @@ const VideoCard: FC<{ post?: Post; expanded?: boolean }> = ({ post, expanded = f
 									href={`/channel/${post?.profile?.handle}`}
 								>
 									<span>{post?.profile?.handle ?? <Skeleton />}</span>
-									<BadgeCheckIcon className="w-3 h-3 text-gray-600" />
+									<VerifiedIcon profileId={post?.profile?.id} className="w-3 h-3 text-gray-600" />
 								</Link>
 							)}
 							<p className="font-hairline text-xs text-gray-800">
