@@ -4,19 +4,21 @@ import { Profile } from '@/types/lens'
 import { normalizeUrl } from '@/lib/media'
 import Skeleton from 'react-loading-skeleton'
 
-const LensAvatar: FC<{ profile: Profile; width: number; height: number; className?: string }> = ({
+const LensAvatar: FC<{ profile: Profile; width: number; height: number; className?: string; srcOverride?: string }> = ({
 	profile,
 	width,
 	height,
+	srcOverride,
 	className = '',
 }) => {
 	const avatarUrl = useMemo<string | null>(() => {
 		if (!profile) return
+		if (srcOverride) return srcOverride
 		if (!profile?.picture) return `https://avatar.tobi.sh/${profile.handle}.png`
 
 		if (profile.picture?.__typename == 'NftImage') return normalizeUrl(profile.picture?.uri)
 		return normalizeUrl(profile.picture.original.url)
-	}, [profile])
+	}, [profile, srcOverride])
 
 	return (
 		<div className={`relative ${className}`} style={{ width, height }}>

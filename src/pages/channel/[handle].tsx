@@ -95,7 +95,7 @@ const ChannelPage: FC<{ profile: Profile }> = ({ profile }) => {
 								<FollowButton profile={profile} />
 								{activeProfile && profile?.id === activeProfile?.id && (
 									<Link
-										href="/settings"
+										href="/settings/channel"
 										className="px-3 py-2 bg-gray-200 uppercase text-gray-600 font-medium text-sm rounded-md"
 									>
 										<CogIcon className="w-5 h-5" />
