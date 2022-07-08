@@ -5,6 +5,7 @@ export const BROADCAST_MUTATION = gql`
 		broadcast(request: $request) {
 			... on RelayerResult {
 				txHash
+				txId
 			}
 			... on RelayError {
 				reason
