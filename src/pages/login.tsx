@@ -11,7 +11,9 @@ const LoginPage = () => {
 	useEffect(() => {
 		if (!isAuthenticated) return
 
-		router.push(router.query.next ? `/${router.query.next}` : '/')
+		const next = router.query.next ?? new URLSearchParams(window.location.search).get('next')
+
+		router.push(next ? `/${next}` : '/')
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isAuthenticated])
 

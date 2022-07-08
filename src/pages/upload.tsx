@@ -87,7 +87,7 @@ const UploadPage: FC = () => {
 								cover
 								label="Choose or drag and drop media"
 								accept="video/mp4, video/webm, video/x-m4v"
-								maxSize={100}
+								maxSize={500}
 								onThumbnailChange={setThumbnailCID}
 								onChange={(CID, mimeType) => {
 									setVideoCID(CID)
