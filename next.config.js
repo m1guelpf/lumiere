@@ -11,6 +11,9 @@ const nextConfig = withTM({
 	experimental: {
 		newNextLinkBehavior: true,
 	},
+	async redirects() {
+		return [{ source: '/settings', destination: '/settings/channel', permanent: true }]
+	},
 })
 
 module.exports = nextConfig
