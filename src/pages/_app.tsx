@@ -1,15 +1,16 @@
 import '@/styles/app.css'
 import client from '@/lib/apollo'
+import { useEffect } from 'react'
+import { useRouter } from 'next/router'
 import * as Fathom from 'fathom-client'
 import Layout from '@/components/Layout'
 import { ApolloProvider } from '@apollo/client'
 import { APP_NAME, IS_MAINNET } from '@/lib/consts'
+import { getDefaultWallets } from '@/lib/rainbowkit'
 import { SkeletonTheme } from 'react-loading-skeleton'
 import { chain, createClient, WagmiConfig } from 'wagmi'
 import { ProfileProvider } from '@/context/ProfileContext'
-import { apiProvider, configureChains, getDefaultWallets, lightTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit'
-import { useEffect } from 'react'
-import { useRouter } from 'next/router'
+import { apiProvider, configureChains, lightTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit'
 
 const { chains, provider } = configureChains(
 	[IS_MAINNET ? chain.polygon : chain.polygonMumbai],
