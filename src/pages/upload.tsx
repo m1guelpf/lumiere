@@ -7,8 +7,8 @@ import { APP_ID, ERROR_MESSAGE } from '@/lib/consts'
 import { useProfile } from '@/context/ProfileContext'
 import useCreatePost from '@/hooks/lens/useCreatePost'
 import { FC, FormEventHandler, useEffect, useState } from 'react'
-import { MetadataVersions, VideoMimeTypes } from '@/types/metadata'
 import { MediaPickerWithThumbnails } from '@/components/MediaPicker'
+import { MetadataVersions, PublicationMainFocus, VideoMimeTypes } from '@/types/metadata'
 
 const UploadPage: FC = () => {
 	const router = useRouter()
@@ -34,15 +34,18 @@ const UploadPage: FC = () => {
 		if (!thumbnailCID) return toast.error('Please wait for the thumbnail to finish uploading.')
 
 		const waitForIndex = await createPost({
-			version: MetadataVersions.one,
-			metadata_id: uuidv4(),
-			description: trimIndentedSpaces(description),
-			content: trimIndentedSpaces(description),
-			external_url: null,
-			image: `ipfs://${thumbnailCID}`,
-			imageMimeType: 'image/jpeg',
-			animation_url: `ipfs://${videoCID}`,
 			name: title,
+			appId: APP_ID,
+			locale: 'en-US',
+			external_url: null,
+			metadata_id: uuidv4(),
+			imageMimeType: 'image/jpeg',
+			version: MetadataVersions.two,
+			image: `ipfs://${thumbnailCID}`,
+			animation_url: `ipfs://${videoCID}`,
+			content: trimIndentedSpaces(description),
+			mainContentFocus: PublicationMainFocus.VIDEO,
+			description: trimIndentedSpaces(description),
 			attributes: [
 				{
 					traitType: 'string',
@@ -54,7 +57,6 @@ const UploadPage: FC = () => {
 				{ item: `ipfs://${videoCID}`, type: videoType as VideoMimeTypes },
 				{ item: `ipfs://${thumbnailCID}`, type: 'image/jpeg' },
 			],
-			appId: APP_ID,
 		})
 
 		await toastOn(waitForIndex, {

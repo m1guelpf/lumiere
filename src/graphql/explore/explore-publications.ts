@@ -3,7 +3,12 @@ import { gql } from '@apollo/client'
 const EXPLORE_PUBLICATIONS = gql`
 	query ExplorePublications {
 		explorePublications(
-			request: { limit: 28, publicationTypes: [POST], sortCriteria: TOP_MIRRORED, sources: ["lumiere"] }
+			request: {
+				limit: 28
+				publicationTypes: [POST]
+				sortCriteria: TOP_MIRRORED
+				metadata: { mainContentFocus: [VIDEO] }
+			}
 		) {
 			items {
 				... on Post {

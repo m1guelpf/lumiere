@@ -5,11 +5,13 @@ const nextConfig = withTM({
 	reactStrictMode: true,
 	images: {
 		dangerouslyAllowSVG: true,
-		domains: ['avatar.tobi.sh', 'lumiere.infura-ipfs.io', 'lens.infura-ipfs.io', 'avatars.dicebear.com'],
 		contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
 	},
 	experimental: {
 		newNextLinkBehavior: true,
+		images: {
+			remotePatterns: [{ protocol: 'https', hostname: '**' }],
+		},
 	},
 	async redirects() {
 		return [{ source: '/settings', destination: '/settings/channel', permanent: true }]

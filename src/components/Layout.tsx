@@ -12,6 +12,7 @@ import { Menu, Transition } from '@headlessui/react'
 import { useProfile } from '@/context/ProfileContext'
 import { BellIcon, UploadIcon } from '@heroicons/react/outline'
 import { BeakerIcon, VideoCameraIcon } from '@heroicons/react/solid'
+import WelcomeModal from './WelcomeModal'
 
 const Layout: FC<{ children: ReactNode }> = ({ children }) => {
 	const { profile, isAuthenticated } = useProfile()
@@ -128,6 +129,7 @@ const Layout: FC<{ children: ReactNode }> = ({ children }) => {
 					</div>
 				</div>
 			)}
+			<WelcomeModal />
 			<main className="flex-1 flex flex-col">{children}</main>
 		</div>
 	)
