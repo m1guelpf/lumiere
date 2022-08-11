@@ -2,11 +2,11 @@ import { v4 as uuidv4 } from 'uuid'
 import LensAvatar from './LensAvatar'
 import { toastOn } from '@/lib/toasts'
 import { useRouter } from 'next/router'
-import { MetadataVersions } from '@/types/metadata'
 import { APP_ID, ERROR_MESSAGE } from '@/lib/consts'
 import { useProfile } from '@/context/ProfileContext'
 import useCreateComment from '@/hooks/lens/useCreateComment'
 import { classNames, trimIndentedSpaces } from '@/lib/utils'
+import { MetadataVersions, PublicationMainFocus } from '@/types/metadata'
 import { FC, FocusEventHandler, FormEventHandler, useState } from 'react'
 
 const NewComment: FC<{ videoId: number; onChange?: () => void; onIndex?: () => void }> = ({
@@ -31,11 +31,15 @@ const NewComment: FC<{ videoId: number; onChange?: () => void; onIndex?: () => v
 		event.preventDefault()
 
 		const waitForIndex = await createComment({
+			media: [],
+			appId: APP_ID,
+			locale: 'en_US',
 			metadata_id: uuidv4(),
-			version: MetadataVersions.one,
+			version: MetadataVersions.two,
 			content: trimIndentedSpaces(comment),
 			name: `Comment by @${profile?.handle}`,
 			description: trimIndentedSpaces(comment),
+			mainContentFocus: PublicationMainFocus.TEXT_ONLY,
 			attributes: [
 				{
 					traitType: 'string',
@@ -43,8 +47,6 @@ const NewComment: FC<{ videoId: number; onChange?: () => void; onIndex?: () => v
 					value: 'comment',
 				},
 			],
-			media: [],
-			appId: APP_ID,
 		})
 
 		await toastOn(waitForIndex, {
