@@ -23,9 +23,9 @@ type CreateComment = {
 type CreateCommentOptions = { onSuccess?: () => void; onIndex?: () => void }
 
 const useCreateComment = (publicationId: number, { onSuccess, onIndex }: CreateCommentOptions = {}): CreateComment => {
+	const { chain } = useNetwork()
 	const { profile } = useProfile()
-	const { activeChain } = useNetwork()
-	const { data: account } = useAccount()
+	const { isConnected } = useAccount()
 
 	//#region Data Hooks
 	const [getTypedData, { loading: dataLoading, error: dataError }] = useMutation<
@@ -50,21 +50,18 @@ const useCreateComment = (publicationId: number, { onSuccess, onIndex }: CreateC
 		writeAsync: sendTx,
 		isLoading: txLoading,
 		error: txError,
-	} = useContractWrite(
-		{
-			addressOrName: LENSHUB_PROXY,
-			contractInterface: LensHubProxy,
+	} = useContractWrite({
+		mode: 'recklesslyUnprepared',
+		addressOrName: LENSHUB_PROXY,
+		contractInterface: LensHubProxy,
+		functionName: 'commentWithSig',
+		onError: (error: any) => {
+			toast.error(error?.data?.message ?? error?.message)
 		},
-		'commentWithSig',
-		{
-			onError(error: any) {
-				toast.error(error?.data?.message ?? error?.message)
-			},
-			onSuccess() {
-				onSuccess && onSuccess()
-			},
-		}
-	)
+		onSuccess: () => {
+			onSuccess && onSuccess()
+		},
+	})
 	const [broadcast, { data: broadcastResult, loading: gasslessLoading, error: gasslessError }] = useMutation<{
 		broadcast: Mutation['broadcast']
 	}>(BROADCAST_MUTATION, {
@@ -87,8 +84,8 @@ const useCreateComment = (publicationId: number, { onSuccess, onIndex }: CreateC
 
 	const createComment = useCallback(
 		async (post: Metadata) => {
-			if (!account?.address) throw toast.error('Please connect your wallet first.')
-			if (activeChain?.unsupported) throw toast.error('Please change your network.')
+			if (!isConnected) throw toast.error('Please connect your wallet first.')
+			if (chain?.unsupported) throw toast.error('Please change your network.')
 			if (!profile?.id) throw toast.error('Please create a Lens profile first.')
 
 			const { id, typedData } = await toastOn(
@@ -169,7 +166,7 @@ const useCreateComment = (publicationId: number, { onSuccess, onIndex }: CreateC
 			const tx = await toastOn(
 				() =>
 					sendTx({
-						args: {
+						recklesslySetUnpreparedArgs: {
 							profileId,
 							contentURI,
 							profileIdPointed,
@@ -189,8 +186,8 @@ const useCreateComment = (publicationId: number, { onSuccess, onIndex }: CreateC
 		},
 		[
 			publicationId,
-			account?.address,
-			activeChain?.unsupported,
+			isConnected,
+			chain?.unsupported,
 			profile?.id,
 			getTypedData,
 			signRequest,

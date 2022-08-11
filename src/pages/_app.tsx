@@ -4,21 +4,21 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import * as Fathom from 'fathom-client'
 import Layout from '@/components/Layout'
+import { APP_NAME, CHAIN } from '@/lib/consts'
 import { ApolloProvider } from '@apollo/client'
-import { APP_NAME, IS_MAINNET } from '@/lib/consts'
-import { getDefaultWallets } from '@/lib/rainbowkit'
+import { createClient, WagmiConfig } from 'wagmi'
 import { SkeletonTheme } from 'react-loading-skeleton'
-import { chain, createClient, WagmiConfig } from 'wagmi'
 import { ProfileProvider } from '@/context/ProfileContext'
-import { apiProvider, configureChains, lightTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit'
+import { ConnectKitProvider, getDefaultClient } from 'connectkit'
 
-const { chains, provider } = configureChains(
-	[IS_MAINNET ? chain.polygon : chain.polygonMumbai],
-	[apiProvider.infura(process.env.NEXT_PUBLIC_INFURA_ID), apiProvider.fallback()]
+const wagmiClient = createClient(
+	getDefaultClient({
+		chains: [CHAIN],
+		autoConnect: true,
+		appName: APP_NAME,
+		infuraId: process.env.NEXT_PUBLIC_INFURA_ID,
+	})
 )
-
-const { connectors } = getDefaultWallets({ appName: APP_NAME, chains })
-const wagmiClient = createClient({ autoConnect: true, connectors, provider })
 
 const App = ({ Component, pageProps }) => {
 	const router = useRouter()
@@ -41,7 +41,7 @@ const App = ({ Component, pageProps }) => {
 
 	return (
 		<WagmiConfig client={wagmiClient}>
-			<RainbowKitProvider chains={chains} theme={lightTheme({ accentColor: 'red' })}>
+			<ConnectKitProvider mode="light">
 				<ApolloProvider client={client}>
 					<SkeletonTheme baseColor="#00000010" highlightColor="#00000040" width={100}>
 						<ProfileProvider>
@@ -51,7 +51,7 @@ const App = ({ Component, pageProps }) => {
 						</ProfileProvider>
 					</SkeletonTheme>
 				</ApolloProvider>
-			</RainbowKitProvider>
+			</ConnectKitProvider>
 		</WagmiConfig>
 	)
 }

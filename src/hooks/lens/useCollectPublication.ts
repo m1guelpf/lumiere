@@ -43,9 +43,9 @@ const useCollectPublication = (
 	publicationId?: string,
 	{ onSuccess, onIndex }: CollectPublicationOptions = {}
 ): CollectPublication => {
+	const { chain } = useNetwork()
 	const { profile } = useProfile()
-	const { activeChain } = useNetwork()
-	const { data: account } = useAccount()
+	const { address, isConnected } = useAccount()
 	const { data: collectedData, refetch } = useQuery<
 		{ publication: { hasCollectedByMe: boolean } },
 		{ publicationId: string }
@@ -77,21 +77,18 @@ const useCollectPublication = (
 		writeAsync: sendTx,
 		isLoading: txLoading,
 		error: txError,
-	} = useContractWrite(
-		{
-			addressOrName: LENSHUB_PROXY,
-			contractInterface: LensHubProxy,
+	} = useContractWrite({
+		mode: 'recklesslyUnprepared',
+		addressOrName: LENSHUB_PROXY,
+		contractInterface: LensHubProxy,
+		functionName: 'collectWithSig',
+		onError: (error: any) => {
+			toast.error(error?.data?.message ?? error?.message)
 		},
-		'collectWithSig',
-		{
-			onError(error: any) {
-				toast.error(error?.data?.message ?? error?.message)
-			},
-			onSuccess() {
-				onSuccess && onSuccess()
-			},
-		}
-	)
+		onSuccess: () => {
+			onSuccess && onSuccess()
+		},
+	})
 	const [broadcast, { data: broadcastResult, loading: gasslessLoading, error: gasslessError }] = useMutation<{
 		broadcast: Mutation['broadcast']
 	}>(BROADCAST_MUTATION, {
@@ -118,8 +115,8 @@ const useCollectPublication = (
 
 	const collectPublication = useCallback(
 		async (publicationId: string) => {
-			if (!account?.address) return toast.error('Please connect your wallet first.')
-			if (activeChain?.unsupported) return toast.error('Please change your network.')
+			if (!isConnected) return toast.error('Please connect your wallet first.')
+			if (chain?.unsupported) return toast.error('Please change your network.')
 			if (!profile?.id) return toast.error('Please create a Lens profile first.')
 
 			const { id, typedData } = await toastOn(
@@ -175,8 +172,8 @@ const useCollectPublication = (
 			const tx = await toastOn(
 				() =>
 					sendTx({
-						args: {
-							collector: account?.address,
+						recklesslySetUnpreparedArgs: {
+							collector: address,
 							profileId,
 							pubId,
 							data,
@@ -189,8 +186,9 @@ const useCollectPublication = (
 			return resolveOnAction({ txHash: tx.hash })
 		},
 		[
-			account?.address,
-			activeChain?.unsupported,
+			address,
+			isConnected,
+			chain?.unsupported,
 			profile?.id,
 			getTypedData,
 			signRequest,

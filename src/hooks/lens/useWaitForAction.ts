@@ -203,15 +203,7 @@ const useWaitForAction = ({ txId, txHash, onError, onIndex, onParse }: WaitForAc
 		[waitForAction]
 	)
 
-	return {
-		error,
-		indexed,
-		loading,
-		waitForAction,
-		resolveOnAction,
-		data: data?.tx,
-		metadataStatus,
-	}
+	return { error, indexed, loading, waitForAction, resolveOnAction, data: data?.tx, metadataStatus }
 }
 
 export default useWaitForAction

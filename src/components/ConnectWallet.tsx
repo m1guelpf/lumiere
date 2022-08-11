@@ -1,17 +1,19 @@
 import Link from 'next/link'
 import useOnce from '@/hooks/useOnce'
 import useLogin from '@/hooks/lens/useLogin'
-import { useAccount, useNetwork } from 'wagmi'
-import { FC, ReactNode, useEffect } from 'react'
+import { ConnectKitButton } from 'connectkit'
+import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi'
 import { useProfile } from '@/context/ProfileContext'
-import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { FC, ReactNode, useCallback, useEffect } from 'react'
 import { CubeTransparentIcon, RefreshIcon, UserAddIcon, UserCircleIcon } from '@heroicons/react/outline'
+import { CHAIN } from '@/lib/consts'
 
 const ConnectWallet: FC<{ children?: ({ logout: Function }) => ReactNode }> = ({ children }) => {
 	const { login, logout } = useLogin()
 	const [loginOnce, reset] = useOnce(login)
-	const { activeChain } = useNetwork()
-	const { data: account } = useAccount()
+	const { chain } = useNetwork()
+	const { isConnected } = useAccount()
+	const { switchNetwork } = useSwitchNetwork({ chainId: CHAIN.id })
 	const { profile, isAuthenticated } = useProfile()
 
 	const handleLogout = async () => {
@@ -20,78 +22,71 @@ const ConnectWallet: FC<{ children?: ({ logout: Function }) => ReactNode }> = ({
 	}
 
 	useEffect(() => {
-		if (!account?.address || activeChain?.unsupported) return
+		if (!isConnected || chain?.unsupported) return
 
 		loginOnce()
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [account?.address, activeChain?.unsupported])
+	}, [isConnected, chain?.unsupported])
+
+	const switchChain = useCallback(() => switchNetwork(), [switchNetwork])
 
 	return (
-		<ConnectButton.Custom>
-			{({ account, chain, openChainModal, openConnectModal, mounted }) => {
-				return (
-					<div className={mounted ? '' : 'opacity-0 pointer-events-none select-none'} aria-hidden={!mounted}>
-						{(() => {
-							if (!mounted || !account || !chain) {
-								return (
-									<button
-										onClick={openConnectModal}
-										className="flex items-center space-x-2 border border-red-500 text-red-500 rounded-lg px-3 py-1 text-sm"
-									>
-										<UserCircleIcon className="w-6 h-6" />
-										<span className="uppercase">Sign in</span>
-									</button>
+		<ConnectKitButton.Custom>
+			{({ isConnected, isConnecting, unsupported, show }) => {
+				if (!isConnected) {
+					return (
+						<button
+							onClick={show}
+							className="flex items-center space-x-2 border border-red-500 text-red-500 rounded-lg px-3 py-1 text-sm"
+						>
+							<UserCircleIcon className="w-6 h-6" />
+							<span className="uppercase">Sign in</span>
+						</button>
+					)
+				}
+
+				if (unsupported) {
+					return (
+						<button
+							onClick={switchChain}
+							className="flex items-center space-x-2 border border-red-500 text-red-500 rounded-lg px-3 py-1 text-sm"
+						>
+							<CubeTransparentIcon className="w-6 h-6" />
+							<span className="uppercase">Wrong network</span>
+						</button>
+					)
+				}
+
+				if (isConnecting || !isAuthenticated) {
+					return (
+						<button className="flex items-center space-x-2 border border-red-500 text-red-500 rounded-lg px-3 py-1 text-sm">
+							<span className="uppercase">Logging in...</span>
+							<RefreshIcon className="w-6 h-6 animate-spin" />
+						</button>
+					)
+				}
+
+				if (!profile) {
+					return (
+						<Link
+							href="https://testnet.lenster.xyz"
+							target="_blank"
+							onClick={() =>
+								alert(
+									"Haven't had time to add creating profiles yet, so go do it in Lenster and then come back :D"
 								)
 							}
+							className="flex items-center space-x-2 border border-red-500 text-red-500 rounded-lg px-3 py-1 text-sm"
+						>
+							<UserAddIcon className="w-6 h-6" />
+							<span className="uppercase">Create Profile</span>
+						</Link>
+					)
+				}
 
-							if (chain.unsupported) {
-								return (
-									<button
-										onClick={openChainModal}
-										className="flex items-center space-x-2 border border-red-500 text-red-500 rounded-lg px-3 py-1 text-sm"
-									>
-										<CubeTransparentIcon className="w-6 h-6" />
-										<span className="uppercase">Wrong network</span>
-									</button>
-								)
-							}
-
-							if (!isAuthenticated) {
-								return (
-									<button
-										onClick={openChainModal}
-										className="flex items-center space-x-2 border border-red-500 text-red-500 rounded-lg px-3 py-1 text-sm"
-									>
-										<span className="uppercase">Logging in...</span>
-										<RefreshIcon className="w-6 h-6 animate-spin" />
-									</button>
-								)
-							}
-
-							if (!profile) {
-								return (
-									<Link
-										href="https://testnet.lenster.xyz"
-										target="_blank"
-										onClick={() =>
-											alert(
-												"Haven't had time to add creating profiles yet, so go do it in Lenster and then come back :D"
-											)
-										}
-										className="flex items-center space-x-2 border border-red-500 text-red-500 rounded-lg px-3 py-1 text-sm"
-									>
-										<UserAddIcon className="w-6 h-6" />
-										<span className="uppercase">Create Profile</span>
-									</Link>
-								)
-							}
-
-							return children?.({ logout: handleLogout })
-						})()}
-					</div>
-				)
+				return children?.({ logout: handleLogout })
 			}}
-		</ConnectButton.Custom>
+		</ConnectKitButton.Custom>
 	)
 }
 

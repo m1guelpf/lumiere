@@ -1,8 +1,11 @@
+import { chain } from 'wagmi'
+
 export const APP_ID = 'lumiere'
 export const APP_NAME = 'Lumiere'
 export const ERROR_MESSAGE = 'Something went wrong! Please try again'
 
 export const IS_MAINNET = process.env.NEXT_PUBLIC_NETWORK == 'mainnet'
+export const CHAIN = IS_MAINNET ? chain.polygon : chain.polygonMumbai
 export const API_URL = IS_MAINNET ? 'https://api.lens.dev' : 'https://api-mumbai.lens.dev'
 export const LENSHUB_PROXY = IS_MAINNET
 	? '0xDb46d1Dc155634FbC732f92E853b10B288AD5a1d'

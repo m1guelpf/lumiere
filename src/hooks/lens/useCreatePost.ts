@@ -19,9 +19,9 @@ type CreatePost = { createPost: (post: Metadata) => Promise<() => Promise<unknow
 type CreatePostOptions = { onSuccess?: () => void; onIndex?: () => void }
 
 const useCreatePost = ({ onSuccess, onIndex }: CreatePostOptions = {}): CreatePost => {
+	const { chain } = useNetwork()
 	const { profile } = useProfile()
-	const { activeChain } = useNetwork()
-	const { data: account } = useAccount()
+	const { isConnected } = useAccount()
 
 	//#region Data Hooks
 	const [getTypedData, { loading: dataLoading, error: dataError }] = useMutation<{
@@ -43,21 +43,18 @@ const useCreatePost = ({ onSuccess, onIndex }: CreatePostOptions = {}): CreatePo
 		data: txData,
 		isLoading: txLoading,
 		error: txError,
-	} = useContractWrite(
-		{
-			addressOrName: LENSHUB_PROXY,
-			contractInterface: LensHubProxy,
+	} = useContractWrite({
+		mode: 'recklesslyUnprepared',
+		addressOrName: LENSHUB_PROXY,
+		contractInterface: LensHubProxy,
+		functionName: 'postWithSig',
+		onError: (error: any) => {
+			toast.error(error?.data?.message ?? error?.message)
 		},
-		'postWithSig',
-		{
-			onError(error: any) {
-				toast.error(error?.data?.message ?? error?.message)
-			},
-			onSuccess() {
-				onSuccess && onSuccess()
-			},
-		}
-	)
+		onSuccess: () => {
+			onSuccess && onSuccess()
+		},
+	})
 	const [broadcast, { data: broadcastResult, loading: gasslessLoading, error: gasslessError }] = useMutation<{
 		broadcast: Mutation['broadcast']
 	}>(BROADCAST_MUTATION, {
@@ -80,8 +77,8 @@ const useCreatePost = ({ onSuccess, onIndex }: CreatePostOptions = {}): CreatePo
 
 	const createPost = useCallback(
 		async (post: Metadata) => {
-			if (!account?.address) throw toast.error('Please connect your wallet first.')
-			if (activeChain?.unsupported) throw toast.error('Please change your network.')
+			if (!isConnected) throw toast.error('Please connect your wallet first.')
+			if (chain?.unsupported) throw toast.error('Please change your network.')
 			if (!profile?.id) throw toast.error('Please create a Lens profile first.')
 
 			const { id, typedData } = await toastOn(
@@ -155,7 +152,7 @@ const useCreatePost = ({ onSuccess, onIndex }: CreatePostOptions = {}): CreatePo
 			const tx = await toastOn(
 				() =>
 					sendTx({
-						args: {
+						recklesslySetUnpreparedArgs: {
 							profileId,
 							contentURI,
 							collectModule,
@@ -170,16 +167,7 @@ const useCreatePost = ({ onSuccess, onIndex }: CreatePostOptions = {}): CreatePo
 
 			return resolveOnAction({ txHash: tx.hash })
 		},
-		[
-			account?.address,
-			activeChain?.unsupported,
-			profile?.id,
-			getTypedData,
-			signRequest,
-			broadcast,
-			sendTx,
-			resolveOnAction,
-		]
+		[isConnected, chain?.unsupported, profile?.id, getTypedData, signRequest, broadcast, sendTx, resolveOnAction]
 	)
 
 	return {

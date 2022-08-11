@@ -22,8 +22,8 @@ type FollowProfileOptions = { onSuccess?: () => void; onIndex?: () => void }
 
 const useFollowProfile = ({ onSuccess, onIndex }: FollowProfileOptions = {}): FollowProfile => {
 	const { profile: activeProfile } = useProfile()
-	const { activeChain } = useNetwork()
-	const { data: account } = useAccount()
+	const { chain } = useNetwork()
+	const { address, isConnected } = useAccount()
 
 	//#region Data Hooks
 	const [getTypedData, { loading: dataLoading, error: dataError }] = useMutation<
@@ -48,21 +48,18 @@ const useFollowProfile = ({ onSuccess, onIndex }: FollowProfileOptions = {}): Fo
 		writeAsync: sendTx,
 		isLoading: txLoading,
 		error: txError,
-	} = useContractWrite(
-		{
-			addressOrName: LENSHUB_PROXY,
-			contractInterface: LensHubProxy,
+	} = useContractWrite({
+		mode: 'recklesslyUnprepared',
+		addressOrName: LENSHUB_PROXY,
+		contractInterface: LensHubProxy,
+		functionName: 'followWithSig',
+		onError: (error: any) => {
+			toast.error(error?.data?.message ?? error?.message)
 		},
-		'followWithSig',
-		{
-			onError(error: any) {
-				toast.error(error?.data?.message ?? error?.message)
-			},
-			onSuccess() {
-				onSuccess && onSuccess()
-			},
-		}
-	)
+		onSuccess: () => {
+			onSuccess && onSuccess()
+		},
+	})
 	const [broadcast, { data: broadcastResult, loading: gasslessLoading, error: gasslessError }] = useMutation<{
 		broadcast: Mutation['broadcast']
 	}>(BROADCAST_MUTATION, {
@@ -85,8 +82,8 @@ const useFollowProfile = ({ onSuccess, onIndex }: FollowProfileOptions = {}): Fo
 
 	const followProfile = useCallback(
 		async (profile: string, followModule: FollowModuleRedeemParams) => {
-			if (!account?.address) throw toast.error('Please connect your wallet first.')
-			if (activeChain?.unsupported) throw toast.error('Please change your network.')
+			if (!isConnected) throw toast.error('Please connect your wallet first.')
+			if (chain?.unsupported) throw toast.error('Please change your network.')
 			if (!activeProfile?.id) throw toast.error('Please create a Lens profile first.')
 
 			const { id, typedData } = await toastOn(
@@ -144,8 +141,8 @@ const useFollowProfile = ({ onSuccess, onIndex }: FollowProfileOptions = {}): Fo
 			const tx = await toastOn(
 				() =>
 					sendTx({
-						args: {
-							follower: account.address,
+						recklesslySetUnpreparedArgs: {
+							follower: address,
 							profileIds,
 							datas,
 							sig: { v, r, s, deadline },
@@ -157,8 +154,9 @@ const useFollowProfile = ({ onSuccess, onIndex }: FollowProfileOptions = {}): Fo
 			return resolveOnAction({ txHash: tx.hash })
 		},
 		[
-			account?.address,
-			activeChain?.unsupported,
+			address,
+			isConnected,
+			chain?.unsupported,
 			activeProfile?.id,
 			getTypedData,
 			signRequest,

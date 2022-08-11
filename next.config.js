@@ -5,7 +5,7 @@ const nextConfig = withTM({
 	reactStrictMode: true,
 	images: {
 		dangerouslyAllowSVG: true,
-		domains: ['avatar.tobi.sh', 'lumiere.infura-ipfs.io', 'avatars.dicebear.com'],
+		domains: ['avatar.tobi.sh', 'lumiere.infura-ipfs.io', 'lens.infura-ipfs.io', 'avatars.dicebear.com'],
 		contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
 	},
 	experimental: {

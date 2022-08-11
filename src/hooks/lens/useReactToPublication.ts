@@ -62,9 +62,9 @@ const useReactToPublication = (
 	publicationId?: string,
 	{ onSuccess }: ReactToPublicationOptions = {}
 ): ReactToPublication => {
+	const { chain } = useNetwork()
 	const { profile } = useProfile()
-	const { activeChain } = useNetwork()
-	const { data: account } = useAccount()
+	const { isConnected } = useAccount()
 
 	const { data: reactedData, refetch } = useQuery<
 		{ publication: { reaction: ReactionTypes; stats: { totalUpvotes: number; totalDownvotes: number } } },
@@ -101,8 +101,8 @@ const useReactToPublication = (
 
 	const reactToPublication = useCallback(
 		async (publicationId: string, reaction: ReactionTypes) => {
-			if (!account?.address) throw toast.error('Please connect your wallet first.')
-			if (activeChain?.unsupported) throw toast.error('Please change your network.')
+			if (!isConnected) throw toast.error('Please connect your wallet first.')
+			if (chain?.unsupported) throw toast.error('Please change your network.')
 			if (!profile?.id) throw toast.error('Please create a Lens profile first.')
 
 			return await toastOn(
@@ -129,13 +129,13 @@ const useReactToPublication = (
 				}
 			)
 		},
-		[account?.address, activeChain?.unsupported, profile?.id, react]
+		[isConnected, chain?.unsupported, profile?.id, react]
 	)
 
 	const removeReaction = useCallback(
 		async (publicationId: string, reaction: ReactionTypes) => {
-			if (!account?.address) throw toast.error('Please connect your wallet first.')
-			if (activeChain?.unsupported) throw toast.error('Please change your network.')
+			if (!isConnected) throw toast.error('Please connect your wallet first.')
+			if (chain?.unsupported) throw toast.error('Please change your network.')
 			if (!profile?.id) throw toast.error('Please create a Lens profile first.')
 
 			return await toastOn(
@@ -157,7 +157,7 @@ const useReactToPublication = (
 				}
 			)
 		},
-		[account?.address, activeChain?.unsupported, profile?.id, unreact]
+		[isConnected, chain?.unsupported, profile?.id, unreact]
 	)
 
 	return {

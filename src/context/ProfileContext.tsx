@@ -20,15 +20,12 @@ export const useProfile = (): ContextData => {
 }
 
 export const ProfileProvider: FC<{ children: ReactNode }> = ({ children }) => {
-	const { data: accountData } = useAccount()
+	const { address, isConnected } = useAccount()
 	const [isAuthenticated, setAuthenticated] = useState<boolean>(false)
 	const [selectedProfile, setSelectedProfile] = useState<number>(0)
 	const { data: profiles } = useQuery<{ profiles: Query['profiles'] }, { address: Scalars['EthereumAddress'] }>(
 		GET_PROFILES,
-		{
-			variables: { address: accountData?.address },
-			skip: !accountData?.address,
-		}
+		{ skip: !isConnected, variables: { address } }
 	)
 
 	useEffect(() => {

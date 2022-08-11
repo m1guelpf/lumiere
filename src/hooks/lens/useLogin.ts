@@ -16,9 +16,9 @@ const useLogin = (): {
 	loading: boolean
 	error?: Error
 } => {
+	const { address } = useAccount()
 	const { disconnect } = useDisconnect()
 	const { isAuthenticated, setAuthenticated } = useProfile()
-	const { data: accountData, isLoading: accountLoading, error: errorAccount } = useAccount()
 	const [loadChallenge, { error: errorChallenge, loading: challengeLoading }] = useLazyQuery(CHALLENGE_QUERY, {
 		fetchPolicy: 'no-cache',
 	})
@@ -34,14 +34,14 @@ const useLogin = (): {
 			data: {
 				challenge: { text: challenge },
 			},
-		} = await loadChallenge({ variables: { address: accountData?.address } })
+		} = await loadChallenge({ variables: { address } })
 
 		const signature = await signMessage({ message: challenge })
 		return toastOn<{ accessToken: string; refreshToken: string }>(
 			async () => {
 				const {
 					data: { authenticate: tokens },
-				} = await authenticate({ variables: { address: accountData?.address, signature } })
+				} = await authenticate({ variables: { address, signature } })
 
 				Cookies.set('accessToken', tokens.accessToken, COOKIE_CONFIG)
 				Cookies.set('refreshToken', tokens.refreshToken, COOKIE_CONFIG)
@@ -63,7 +63,7 @@ const useLogin = (): {
 	}
 
 	useEffect(() => {
-		if (!Cookies.get('accessToken') || (!Cookies.get('refreshToken') && accountData?.address)) return
+		if (!Cookies.get('accessToken') || (!Cookies.get('refreshToken') && address)) return
 
 		setAuthenticated(true)
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -73,8 +73,8 @@ const useLogin = (): {
 		login,
 		logout,
 		isAuthenticated,
-		loading: accountLoading || challengeLoading || signLoading || authLoading,
-		error: errorAccount || errorChallenge || errorSign || errorAuthenticate,
+		loading: challengeLoading || signLoading || authLoading,
+		error: errorChallenge || errorSign || errorAuthenticate,
 	}
 }
 

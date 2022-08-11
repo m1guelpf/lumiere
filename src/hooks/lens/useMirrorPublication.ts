@@ -39,8 +39,8 @@ const useMirrorPublication = (
 	{ onSuccess, onIndex }: MirrorPublicationOptions = {}
 ): MirrorPublication => {
 	const { profile } = useProfile()
-	const { activeChain } = useNetwork()
-	const { data: account } = useAccount()
+	const { chain } = useNetwork()
+	const { isConnected } = useAccount()
 
 	const { data: collectedData, refetch } = useQuery<
 		{ publication: { mirrors: string[] } },
@@ -73,21 +73,18 @@ const useMirrorPublication = (
 		writeAsync: sendTx,
 		isLoading: txLoading,
 		error: txError,
-	} = useContractWrite(
-		{
-			addressOrName: LENSHUB_PROXY,
-			contractInterface: LensHubProxy,
+	} = useContractWrite({
+		mode: 'recklesslyUnprepared',
+		addressOrName: LENSHUB_PROXY,
+		contractInterface: LensHubProxy,
+		functionName: 'mirrorWithSig',
+		onError: (error: any) => {
+			toast.error(error?.data?.message ?? error?.message)
 		},
-		'mirrorWithSig',
-		{
-			onError(error: any) {
-				toast.error(error?.data?.message ?? error?.message)
-			},
-			onSuccess() {
-				onSuccess && onSuccess()
-			},
-		}
-	)
+		onSuccess: () => {
+			onSuccess && onSuccess()
+		},
+	})
 	const [broadcast, { data: broadcastResult, loading: gasslessLoading, error: gasslessError }] = useMutation<{
 		broadcast: Mutation['broadcast']
 	}>(BROADCAST_MUTATION, {
@@ -114,8 +111,8 @@ const useMirrorPublication = (
 
 	const mirrorPublication = useCallback(
 		async (publicationId: string, refModule: ReferenceModuleParams) => {
-			if (!account?.address) throw toast.error('Please connect your wallet first.')
-			if (activeChain?.unsupported) throw toast.error('Please change your network.')
+			if (!isConnected) throw toast.error('Please connect your wallet first.')
+			if (chain?.unsupported) throw toast.error('Please change your network.')
 			if (!profile?.id) throw toast.error('Please create a Lens profile first.')
 
 			const { id, typedData } = await toastOn(
@@ -183,7 +180,7 @@ const useMirrorPublication = (
 			const tx = await toastOn(
 				() =>
 					sendTx({
-						args: {
+						recklesslySetUnpreparedArgs: {
 							profileId,
 							profileIdPointed,
 							pubIdPointed,
@@ -198,16 +195,7 @@ const useMirrorPublication = (
 
 			return resolveOnAction({ txHash: tx.hash })
 		},
-		[
-			account?.address,
-			activeChain?.unsupported,
-			profile?.id,
-			getTypedData,
-			signRequest,
-			broadcast,
-			sendTx,
-			resolveOnAction,
-		]
+		[isConnected, chain?.unsupported, profile?.id, getTypedData, signRequest, broadcast, sendTx, resolveOnAction]
 	)
 
 	return {
