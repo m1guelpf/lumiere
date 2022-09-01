@@ -86,6 +86,7 @@ export const IpfsMediaPicker: FC<IpfsProps> = ({ onChange, onFileChange, onReset
 	const onRemove = () => {
 		setMimeType(null)
 		setIpfsCID(null)
+		setUploadProgress(0)
 		onReset && onReset()
 	}
 
@@ -387,11 +388,14 @@ const MediaTag = ({ error, maxSize, uploadProgress, uploaded, uploading }: Media
 			className: 'text-red-400 bg-red-50',
 			...(typeof error === 'string' ? { label: 'Error', children: error } : { children: 'Error' }),
 		}
-	else if (maxSize !== undefined)
+	else if (maxSize !== undefined) {
+		const isGb = maxSize >= 1024
+
 		statusProps = {
 			label: 'Maximum size',
-			children: `${maxSize} MB`,
+			children: `${isGb ? maxSize / 1024 : maxSize} ${isGb ? 'GB' : 'MB'}`,
 		}
+	}
 
 	if (!statusProps) return null
 	return <Tag as="span" {...statusProps} />

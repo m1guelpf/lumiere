@@ -1,5 +1,5 @@
-import toast from 'react-hot-toast'
 import { v4 as uuidv4 } from 'uuid'
+import toast from 'react-hot-toast'
 import { toastOn } from '@/lib/toasts'
 import { useRouter } from 'next/router'
 import { trimIndentedSpaces } from '@/lib/utils'
@@ -53,10 +53,7 @@ const UploadPage: FC = () => {
 					value: 'post',
 				},
 			],
-			media: [
-				{ item: `ipfs://${videoCID}`, type: videoType as VideoMimeTypes },
-				{ item: `ipfs://${thumbnailCID}`, type: 'image/jpeg' },
-			],
+			media: [{ item: `ipfs://${videoCID}`, type: videoType as VideoMimeTypes, cover: `ipfs://${thumbnailCID}` }],
 		})
 
 		await toastOn(waitForIndex, {
@@ -89,7 +86,7 @@ const UploadPage: FC = () => {
 								cover
 								label="Choose or drag and drop media"
 								accept="video/mp4, video/webm, video/x-m4v"
-								maxSize={500}
+								maxSize={1024}
 								onThumbnailChange={setThumbnailCID}
 								onChange={(CID, mimeType) => {
 									setVideoCID(CID)

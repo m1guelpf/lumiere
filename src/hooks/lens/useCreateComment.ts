@@ -1,7 +1,7 @@
 import { ethers } from 'ethers'
 import { omit } from '@/lib/utils'
-import toast from 'react-hot-toast'
 import { useCallback } from 'react'
+import toast from 'react-hot-toast'
 import { toastOn } from '@/lib/toasts'
 import { uploadJSON } from '@/lib/ipfs'
 import { Metadata } from '@/types/metadata'
@@ -12,8 +12,8 @@ import { useProfile } from '@/context/ProfileContext'
 import BROADCAST_MUTATION from '@/graphql/broadcast/broadcast'
 import { ERROR_MESSAGE, LENSHUB_PROXY, RELAYER_ON } from '@/lib/consts'
 import CREATE_COMMENT_SIG from '@/graphql/publications/create-comment-request'
-import { Mutation, MutationCreateCommentTypedDataArgs, RelayerResult } from '@/types/lens'
 import { useAccount, useContractWrite, useNetwork, useSignTypedData } from 'wagmi'
+import { Mutation, MutationCreateCommentTypedDataArgs, RelayerResult } from '@/types/lens'
 
 type CreateComment = {
 	createComment: (comment: Metadata) => Promise<() => Promise<unknown>>

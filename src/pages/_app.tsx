@@ -1,6 +1,6 @@
 import '@/styles/app.css'
-import client from '@/lib/apollo'
 import { useEffect } from 'react'
+import client from '@/lib/apollo'
 import { useRouter } from 'next/router'
 import * as Fathom from 'fathom-client'
 import Layout from '@/components/Layout'

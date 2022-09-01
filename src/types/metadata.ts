@@ -21,10 +21,21 @@ type AudioMimeTypes = 'audio/wav' | 'audio/mpeg' | 'audio/ogg'
 
 type PublicationMetadataMedia = {
 	item: Scalars['Url']
+
 	/**
 	 * This is the mime type of media
 	 */
-	type: Scalars['MimeType']
+	type?: Scalars['MimeType'] | null
+
+	/**
+	 * The alt tags for accessibility
+	 */
+	altTag?: string | null
+
+	/**
+	 * The cover for any video or audio you attached
+	 */
+	cover?: string | null
 }
 
 export enum MetadataVersions {
@@ -33,9 +44,9 @@ export enum MetadataVersions {
 }
 
 enum PublicationMetadataDisplayType {
+	date = 'date',
 	number = 'number',
 	string = 'string',
-	date = 'date',
 }
 
 type PublicationMetadataAttribute = {

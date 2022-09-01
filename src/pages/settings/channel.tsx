@@ -1,11 +1,11 @@
-import CopyIcon from '@/components/CopyIcon'
-import LensAvatar from '@/components/LensAvatar'
-import SettingsLayout from '@/components/SettingsLayout'
-import StateAwareIcon from '@/components/StateAwareIcon'
-import { useProfile } from '@/context/ProfileContext'
+import toast from 'react-hot-toast'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
+import CopyIcon from '@/components/CopyIcon'
+import LensAvatar from '@/components/LensAvatar'
+import { useProfile } from '@/context/ProfileContext'
+import SettingsLayout from '@/components/SettingsLayout'
+import StateAwareIcon from '@/components/StateAwareIcon'
 
 const SettingsPage = () => {
 	const router = useRouter()

@@ -1,7 +1,7 @@
+import { FC, ReactNode } from 'react'
+import { useRouter } from 'next/router'
 import { classNames } from '@/lib/utils'
 import { CreditCardIcon, ExclamationIcon, StarIcon, UserCircleIcon } from '@heroicons/react/outline'
-import { useRouter } from 'next/router'
-import { FC, ReactNode } from 'react'
 
 const navigation = [
 	{

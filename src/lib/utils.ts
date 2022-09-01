@@ -1,6 +1,6 @@
 import omitDeep from 'omit-deep'
-import toast from 'react-hot-toast'
 import Autolinker from 'autolinker'
+import toast from 'react-hot-toast'
 import copy from 'copy-to-clipboard'
 
 export const classNames = (...classes: string[]): string => classes.filter(Boolean).join(' ')

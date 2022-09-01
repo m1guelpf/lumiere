@@ -1,5 +1,5 @@
-import Skeleton from 'react-loading-skeleton'
 import { FC, useMemo, useState } from 'react'
+import Skeleton from 'react-loading-skeleton'
 import { classNames, linkify } from '@/lib/utils'
 
 const LensVideoDescription: FC<{ description: string | null; loading: boolean; className?: string }> = ({

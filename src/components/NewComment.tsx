@@ -4,10 +4,10 @@ import { toastOn } from '@/lib/toasts'
 import { useRouter } from 'next/router'
 import { APP_ID, ERROR_MESSAGE } from '@/lib/consts'
 import { useProfile } from '@/context/ProfileContext'
-import useCreateComment from '@/hooks/lens/useCreateComment'
 import { classNames, trimIndentedSpaces } from '@/lib/utils'
-import { MetadataVersions, PublicationMainFocus } from '@/types/metadata'
+import useCreateComment from '@/hooks/lens/useCreateComment'
 import { FC, FocusEventHandler, FormEventHandler, useState } from 'react'
+import { MetadataVersions, PublicationMainFocus } from '@/types/metadata'
 
 const NewComment: FC<{ videoId: number; onChange?: () => void; onIndex?: () => void }> = ({
 	videoId,

@@ -1,7 +1,7 @@
 import { ethers } from 'ethers'
 import { omit } from '@/lib/utils'
-import toast from 'react-hot-toast'
 import { useCallback } from 'react'
+import toast from 'react-hot-toast'
 import { toastOn } from '@/lib/toasts'
 import { uploadJSON } from '@/lib/ipfs'
 import { Metadata } from '@/types/metadata'

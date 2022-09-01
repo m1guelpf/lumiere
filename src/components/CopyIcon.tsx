@@ -1,7 +1,7 @@
-import { ClipboardCheckIcon, ClipboardCopyIcon } from '@heroicons/react/outline'
+import toast from 'react-hot-toast'
 import copy from 'copy-to-clipboard'
 import { useCallback, useState } from 'react'
-import toast from 'react-hot-toast'
+import { ClipboardCheckIcon, ClipboardCopyIcon } from '@heroicons/react/outline'
 
 const CopyIcon = ({ text, className = '', iconClassName = '' }) => {
 	const [justCopied, setJustCopied] = useState<boolean>(false)

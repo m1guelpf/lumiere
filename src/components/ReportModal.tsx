@@ -1,9 +1,9 @@
 import toast from 'react-hot-toast'
 import { classNames } from '@/lib/utils'
-import { useMutation } from '@apollo/client'
 import { ERROR_MESSAGE } from '@/lib/consts'
-import { Dialog, Transition } from '@headlessui/react'
+import { useMutation } from '@apollo/client'
 import { FC, Fragment, useRef, useState } from 'react'
+import { Dialog, Transition } from '@headlessui/react'
 import { ExclamationIcon } from '@heroicons/react/outline'
 import REPORT_PUBLICATION from '@/graphql/report/report-publication'
 import {

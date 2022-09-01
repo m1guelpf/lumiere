@@ -1,20 +1,17 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Post } from '@/types/lens'
 import { FC, useMemo } from 'react'
+import { Post } from '@/types/lens'
 import LensAvatar from './LensAvatar'
 import VerifiedIcon from './VerifiedIcon'
+import { normalizeUrl } from '@/lib/media'
 import Skeleton from 'react-loading-skeleton'
-import { getImageUrl, includesImage, normalizeUrl } from '@/lib/media'
 import formatDistanceToNowStrict from 'date-fns/formatDistanceToNowStrict'
 
 const VideoCard: FC<{ post?: Post; expanded?: boolean }> = ({ post, expanded = false }) => {
 	const coverImg = useMemo(() => {
 		if (!post) return
-		if (includesImage(post.metadata.media)) return getImageUrl(post.metadata.media)
-		if (post.metadata.cover) {
-			return normalizeUrl(post.metadata.cover.original.url)
-		}
+		if (post.metadata.cover) return normalizeUrl(post.metadata.cover.original.url)
 
 		return `https://avatar.tobi.sh/${post.id}.png`
 	}, [post])

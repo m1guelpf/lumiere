@@ -1,7 +1,7 @@
 import { ethers } from 'ethers'
 import { omit } from '@/lib/utils'
-import toast from 'react-hot-toast'
 import { useCallback } from 'react'
+import toast from 'react-hot-toast'
 import { toastOn } from '@/lib/toasts'
 import useWaitForAction from './useWaitForAction'
 import LensHubProxy from '@/abis/LensHubProxy.json'

@@ -1,5 +1,5 @@
-import toast from 'react-hot-toast'
 import { useCallback } from 'react'
+import toast from 'react-hot-toast'
 import { toastOn } from '@/lib/toasts'
 import { ERROR_MESSAGE } from '@/lib/consts'
 import { useAccount, useNetwork } from 'wagmi'

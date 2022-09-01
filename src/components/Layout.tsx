@@ -1,9 +1,10 @@
 import Meta from './Meta'
 import Link from 'next/link'
-import toast from 'react-hot-toast'
 import SearchBar from './SearchBar'
+import toast from 'react-hot-toast'
 import LensAvatar from './LensAvatar'
 import { classNames } from '@/lib/utils'
+import WelcomeModal from './WelcomeModal'
 import { Toaster } from 'react-hot-toast'
 import ConnectWallet from './ConnectWallet'
 import { FC, Fragment, ReactNode } from 'react'
@@ -12,7 +13,6 @@ import { Menu, Transition } from '@headlessui/react'
 import { useProfile } from '@/context/ProfileContext'
 import { BellIcon, UploadIcon } from '@heroicons/react/outline'
 import { BeakerIcon, VideoCameraIcon } from '@heroicons/react/solid'
-import WelcomeModal from './WelcomeModal'
 
 const Layout: FC<{ children: ReactNode }> = ({ children }) => {
 	const { profile, isAuthenticated } = useProfile()

@@ -1,12 +1,12 @@
 import Link from 'next/link'
+import { CHAIN } from '@/lib/consts'
 import useOnce from '@/hooks/useOnce'
 import useLogin from '@/hooks/lens/useLogin'
 import { ConnectKitButton } from 'connectkit'
-import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi'
 import { useProfile } from '@/context/ProfileContext'
 import { FC, ReactNode, useCallback, useEffect } from 'react'
+import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi'
 import { CubeTransparentIcon, RefreshIcon, UserAddIcon, UserCircleIcon } from '@heroicons/react/outline'
-import { CHAIN } from '@/lib/consts'
 
 const ConnectWallet: FC<{ children?: ({ logout: Function }) => ReactNode }> = ({ children }) => {
 	const { login, logout } = useLogin()
