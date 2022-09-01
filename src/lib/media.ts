@@ -1,10 +1,16 @@
-import { Media, MediaSet } from '@/types/lens'
+import { Media, MediaSet, NftImage } from '@/types/lens'
 
 export const getImageUrl = (media: MediaSet[]): string => {
 	const image = media.find(({ original: { mimeType } }) => mimeType.startsWith('image'))?.original
 
 	if (!image) return
 	return normalizeUrl(image.url, image.mimeType)
+}
+
+export const resolveImageUrl = (media: MediaSet | NftImage): string => {
+	if (media?.__typename == 'NftImage') return normalizeUrl(media?.uri)
+
+	return normalizeUrl(media?.original?.url)
 }
 
 export const getVideo = (media: MediaSet[]): Media | null => {

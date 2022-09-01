@@ -1,20 +1,32 @@
+import { v4 as uuidv4 } from 'uuid'
 import toast from 'react-hot-toast'
+import { toastOn } from '@/lib/toasts'
+import { uploadFile } from '@/lib/ipfs'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
+import { ERROR_MESSAGE } from '@/lib/consts'
 import CopyIcon from '@/components/CopyIcon'
+import { resolveImageUrl } from '@/lib/media'
 import LensAvatar from '@/components/LensAvatar'
 import { useProfile } from '@/context/ProfileContext'
 import SettingsLayout from '@/components/SettingsLayout'
-import StateAwareIcon from '@/components/StateAwareIcon'
+import { ProfileMetadataVersions } from '@/types/metadata'
+import useUpdateProfile from '@/hooks/lens/useUpdateProfile'
+import MediaPicker, { IpfsMediaPicker } from '@/components/MediaPicker'
+import useUpdateProfilePicture from '@/hooks/lens/useUpdateProfilePicture'
 
 const SettingsPage = () => {
 	const router = useRouter()
+	const { updateProfile } = useUpdateProfile()
 	const { profile, isAuthenticated } = useProfile()
+	const { updateProfilePicture } = useUpdateProfilePicture()
 
 	const [bio, setBio] = useState<string>('')
 	const [name, setName] = useState<string>('')
 	const [website, setWebsite] = useState<string>('')
 	const [twitter, setTwitter] = useState<string>('')
+	const [avatarURL, setAvatarURL] = useState<string>('')
+	const [bannerUrl, setBannerUrl] = useState<string>('')
 
 	useEffect(() => {
 		if (isAuthenticated) return
@@ -26,16 +38,49 @@ const SettingsPage = () => {
 	useEffect(() => {
 		if (!profile) return
 
-		setName(profile.name)
 		setBio(profile.bio)
+		setName(profile.name)
+		setAvatarURL(resolveImageUrl(profile.picture))
+		setBannerUrl(resolveImageUrl(profile.coverPicture))
 		setWebsite(profile.attributes.find(attr => attr.key == 'website')?.value ?? '')
 		setTwitter(profile.attributes.find(attr => attr.key == 'twitter')?.value ?? '')
 	}, [profile])
 
-	const updateSettings = event => {
+	const updateSettings = async event => {
 		event.preventDefault()
 
-		toast.error('Not implemented yet.')
+		const waitForIndex = await updateProfile({
+			bio,
+			name,
+			metadata_id: uuidv4(),
+			cover_picture: bannerUrl,
+			version: ProfileMetadataVersions.one,
+			attributes: [
+				{ traitType: 'string', key: 'website', value: website },
+				{ traitType: 'string', key: 'twitter', value: twitter },
+			],
+		})
+
+		await toastOn(waitForIndex, {
+			loading: 'Finishing update...',
+			success: 'Profile updated!',
+			error: ERROR_MESSAGE,
+		})
+
+		router.push(`/channel/${profile?.handle}`)
+	}
+
+	const uploadAvatar = async event => {
+		event.preventDefault()
+		const file = event.target.files[0]
+		if (!file) throw toast.error('No file selected.')
+
+		setAvatarURL(URL.createObjectURL(file))
+		const id = toast.loading('Uploading avatar...')
+		const cid = await uploadFile(file, progress => toast.loading(`Uploading avatar... ${progress * 100}%`, { id }))
+		toast.success('Avatar uploaded!', { id })
+
+		updateProfilePicture(`ipfs://${cid}`)
 	}
 
 	return (
@@ -82,7 +127,7 @@ const SettingsPage = () => {
 							Photo
 						</label>
 						<div className="mt-1 flex items-center">
-							<LensAvatar width={48} height={48} profile={profile} />
+							<LensAvatar width={48} height={48} profile={profile} srcOverride={avatarURL} />
 							<div className="ml-4 flex">
 								<div className="relative bg-white py-2 px-3 border border-slate-300 rounded-md shadow-sm flex items-center cursor-pointer hover:bg-slate-50 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-slate-50 focus-within:ring-blue-500">
 									<label
@@ -96,18 +141,35 @@ const SettingsPage = () => {
 										id="avatar"
 										name="avatar"
 										type="file"
-										onChange={() => toast.error('Not implemented yet')}
+										accept="image/*"
+										onChange={uploadAvatar}
 										className="absolute inset-0 w-full h-full opacity-0 cursor-pointer border-gray-300 rounded-md"
 									/>
 								</div>
-								<button
-									type="button"
-									onClick={() => toast.error('Not implemented yet')}
-									className="ml-3 bg-transparent py-2 px-3 border border-transparent rounded-md text-sm font-medium text-slate-900 hover:text-slate-700 focus:outline-none focus:border-slate-300 focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-50 focus:ring-blue-500"
-								>
-									Remove
-								</button>
 							</div>
+						</div>
+					</div>
+
+					<div className="sm:col-span-6">
+						<label htmlFor="photo" className="block text-sm font-medium text-slate-900">
+							Banner
+						</label>
+						<div className="mt-1 flex items-center w-full">
+							<IpfsMediaPicker
+								cover
+								className="w-full"
+								name="banner"
+								defaultValue={{
+									name: 'banner.jpg',
+									type: 'image/jpeg',
+									url: resolveImageUrl(profile?.coverPicture),
+								}}
+								label="Choose or drag and drop media"
+								accept="image/jpeg, image/png, image/webp"
+								maxSize={100}
+								onChange={cid => cid && setBannerUrl(`ipfs://${cid}`)}
+								onReset={() => setBannerUrl(null)}
+							/>
 						</div>
 					</div>
 

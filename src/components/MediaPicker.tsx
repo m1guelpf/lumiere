@@ -6,7 +6,7 @@ import { dataURItoFile } from '@/lib/files'
 import { XIcon } from '@heroicons/react/solid'
 import { generateVideoThumbnails } from '@/lib/thumbnails'
 import FileInput, { Props as FileInputProps } from './FileInput'
-import { FC, PropsWithChildren, useEffect, useState } from 'react'
+import { FC, PropsWithChildren, useEffect, useRef, useState } from 'react'
 import { CheckCircleIcon, ExclamationIcon, UploadIcon } from '@heroicons/react/outline'
 
 type Image = 'image/jpeg' | 'image/png' | 'image/webp' | 'image/jpeg, image/png, image/webp'

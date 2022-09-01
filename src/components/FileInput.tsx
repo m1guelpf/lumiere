@@ -71,6 +71,7 @@ const FileInput = forwardRef(
 		}: Props,
 		ref: Ref<HTMLDivElement>
 	) => {
+		const hasChanged = useRef<boolean>(false)
 		const defaultRef = useRef<HTMLInputElement>(null)
 		const inputRef = (ref as React.RefObject<HTMLInputElement>) || defaultRef
 		const [state, setState] = useState<State>(initialState)
@@ -90,6 +91,7 @@ const FileInput = forwardRef(
 					return
 				}
 
+				hasChanged.current = true
 				setState(x => ({ ...x, file, name: file.name, type: file.type }))
 
 				onChange && onChange(file)
@@ -173,6 +175,7 @@ const FileInput = forwardRef(
 				event.preventDefault()
 
 				setState(initialState)
+				hasChanged.current = true
 				if (inputRef.current) inputRef.current.value = ''
 
 				onReset && onReset()
@@ -181,11 +184,11 @@ const FileInput = forwardRef(
 		)
 
 		useEffect(() => {
-			if (!defaultValue) return
+			if (!defaultValue || hasChanged.current) return
 
 			setState({ previewUrl: defaultValue.url, name: defaultValue.name, type: defaultValue.type })
 			// eslint-disable-next-line react-hooks/exhaustive-deps
-		}, [])
+		}, [defaultValue])
 
 		useEffect(() => {
 			if (!state.file) return
