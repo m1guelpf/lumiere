@@ -17,6 +17,7 @@ import VerifiedIcon from '@/components/VerifiedIcon'
 import { GetStaticPaths, GetStaticProps } from 'next'
 import StateAwareIcon from '@/components/StateAwareIcon'
 import { LensVideoRenderer } from '@/components/LensVideo'
+import WorldIdBadge from '@/components/Icons/WorldIdBadge'
 import { FlagIcon, ShareIcon } from '@heroicons/react/outline'
 import useMirrorPublication from '@/hooks/lens/useMirrorPublication'
 import LensVideoDescription from '@/components/LensVideoDescription'
@@ -193,6 +194,9 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 											profileId={video?.profile?.id}
 											className="w-4 h-4 text-gray-600"
 										/>
+										{video?.profile?.onChainIdentity?.worldcoin?.isHuman && (
+											<WorldIdBadge width={16} height={16} />
+										)}
 									</Link>
 									<p className="text-xs text-gray-500">
 										{(video && `${video?.profile?.stats?.totalFollowers} subscribers`) ?? (
@@ -245,10 +249,15 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 												className="font-medium text-black text-sm flex items-center space-x-1"
 											>
 												<span>{comment.profile.name ?? comment.profile.handle}</span>
-												<VerifiedIcon
-													profileId={comment?.profile?.id}
-													className="w-3 h-3 text-gray-600"
-												/>
+												<div className="flex items-center">
+													<VerifiedIcon
+														profileId={comment?.profile?.id}
+														className="w-3 h-3 text-gray-600"
+													/>
+													{comment?.profile?.onChainIdentity?.worldcoin?.isHuman && (
+														<WorldIdBadge width={12} height={12} />
+													)}
+												</div>
 											</Link>
 											<p className="text-xs text-gray-500">
 												{formatDistanceToNowStrict(new Date(comment.createdAt))} ago

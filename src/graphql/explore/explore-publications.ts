@@ -43,6 +43,11 @@ const EXPLORE_PUBLICATIONS = gql`
 		metadata
 		isDefault
 		handle
+		onChainIdentity {
+			worldcoin {
+				isHuman
+			}
+		}
 		picture {
 			... on NftImage {
 				contractAddress

@@ -6,6 +6,7 @@ import LensAvatar from './LensAvatar'
 import VerifiedIcon from './VerifiedIcon'
 import { normalizeUrl } from '@/lib/media'
 import Skeleton from 'react-loading-skeleton'
+import WorldIdBadge from './Icons/WorldIdBadge'
 import formatDistanceToNowStrict from 'date-fns/formatDistanceToNowStrict'
 
 const VideoCard: FC<{ post?: Post; expanded?: boolean }> = ({ post, expanded = false }) => {
@@ -41,7 +42,12 @@ const VideoCard: FC<{ post?: Post; expanded?: boolean }> = ({ post, expanded = f
 									href={`/channel/${post?.profile?.handle}`}
 								>
 									<span>{post?.profile?.handle ?? <Skeleton />}</span>
-									<VerifiedIcon profileId={post?.profile?.id} className="w-3 h-3 text-gray-600" />
+									<div className="flex items-center">
+										<VerifiedIcon profileId={post?.profile?.id} className="w-3 h-3 text-gray-600" />
+										{post?.profile?.onChainIdentity?.worldcoin?.isHuman && (
+											<WorldIdBadge width={12} height={12} />
+										)}
+									</div>
 								</Link>
 							)}
 							<p className="font-hairline text-xs text-gray-800">

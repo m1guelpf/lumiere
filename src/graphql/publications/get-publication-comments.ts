@@ -26,6 +26,11 @@ const GET_PUBLICATION_COMMENTS = gql`
 			key
 			value
 		}
+		onChainIdentity {
+			worldcoin {
+				isHuman
+			}
+		}
 		metadata
 		isDefault
 		handle

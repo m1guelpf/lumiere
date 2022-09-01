@@ -56,12 +56,16 @@ export type Scalars = {
 	NotificationId: any
 	/** ProfileId custom scalar type */
 	ProfileId: any
+	/** proxy action scalar id type */
+	ProxyActionId: any
 	/** Publication id custom scalar type */
 	PublicationId: any
 	/** The publication tag */
 	PublicationTag: any
 	/** Publication url scalar type */
 	PublicationUrl: any
+	/** The reaction id */
+	ReactionId: any
 	/** reference module data scalar type */
 	ReferenceModuleData: any
 	/** Query search */
@@ -88,6 +92,7 @@ export type AchRequest = {
 	ethereumAddress: Scalars['EthereumAddress']
 	freeTextHandle?: InputMaybe<Scalars['Boolean']>
 	handle?: InputMaybe<Scalars['CreateHandle']>
+	overrideAlreadyClaimed: Scalars['Boolean']
 	overrideTradeMark: Scalars['Boolean']
 	secret: Scalars['String']
 }
@@ -109,11 +114,14 @@ export type ApprovedAllowanceAmount = {
 }
 
 export type ApprovedModuleAllowanceAmountRequest = {
-	collectModules: Array<CollectModules>
+	collectModules?: InputMaybe<Array<CollectModules>>
 	/** The contract addresses for the module approved currencies you want to find information on about the user */
 	currencies: Array<Scalars['ContractAddress']>
-	followModules: Array<FollowModules>
-	referenceModules: Array<ReferenceModules>
+	followModules?: InputMaybe<Array<FollowModules>>
+	referenceModules?: InputMaybe<Array<ReferenceModules>>
+	unknownCollectModules?: InputMaybe<Array<Scalars['ContractAddress']>>
+	unknownFollowModules?: InputMaybe<Array<Scalars['ContractAddress']>>
+	unknownReferenceModules?: InputMaybe<Array<Scalars['ContractAddress']>>
 }
 
 /** The Profile */
@@ -167,6 +175,13 @@ export type ClaimHandleRequest = {
 	id?: InputMaybe<Scalars['HandleClaimIdScalar']>
 }
 
+/** The claim status */
+export enum ClaimStatus {
+	AlreadyClaimed = 'ALREADY_CLAIMED',
+	ClaimFailed = 'CLAIM_FAILED',
+	NotClaimed = 'NOT_CLAIMED',
+}
+
 export type ClaimableHandles = {
 	__typename?: 'ClaimableHandles'
 	canClaimFreeTextHandle: Scalars['Boolean']
@@ -180,6 +195,7 @@ export type CollectModule =
 	| LimitedTimedFeeCollectModuleSettings
 	| RevertCollectModuleSettings
 	| TimedFeeCollectModuleSettings
+	| UnknownCollectModuleSettings
 
 export type CollectModuleParams = {
 	/** The collect fee collect module */
@@ -194,6 +210,8 @@ export type CollectModuleParams = {
 	revertCollectModule?: InputMaybe<Scalars['Boolean']>
 	/** The collect timed fee collect module */
 	timedFeeCollectModule?: InputMaybe<TimedFeeCollectModuleParams>
+	/** A unknown collect module */
+	unknownCollectModule?: InputMaybe<UnknownCollectModuleParams>
 }
 
 /** The collect module types */
@@ -204,6 +222,11 @@ export enum CollectModules {
 	LimitedTimedFeeCollectModule = 'LimitedTimedFeeCollectModule',
 	RevertCollectModule = 'RevertCollectModule',
 	TimedFeeCollectModule = 'TimedFeeCollectModule',
+	UnknownCollectModule = 'UnknownCollectModule',
+}
+
+export type CollectProxyAction = {
+	freeCollect?: InputMaybe<FreeCollectProxyAction>
 }
 
 /** The social comment */
@@ -330,6 +353,8 @@ export type CreateCollectEip712TypedDataValue = {
 
 export type CreateCollectRequest = {
 	publicationId: Scalars['InternalPublicationId']
+	/** The encoded data to collect with if using an unknown module */
+	unknownModuleData?: InputMaybe<Scalars['BlockchainData']>
 }
 
 /** The broadcast item */
@@ -994,7 +1019,11 @@ export type Follow = {
 	profile: Scalars['ProfileId']
 }
 
-export type FollowModule = FeeFollowModuleSettings | ProfileFollowModuleSettings | RevertFollowModuleSettings
+export type FollowModule =
+	| FeeFollowModuleSettings
+	| ProfileFollowModuleSettings
+	| RevertFollowModuleSettings
+	| UnknownFollowModuleSettings
 
 export type FollowModuleParams = {
 	/** The follower fee follower module */
@@ -1005,6 +1034,8 @@ export type FollowModuleParams = {
 	profileFollowModule?: InputMaybe<Scalars['Boolean']>
 	/** The revert follow module */
 	revertFollowModule?: InputMaybe<Scalars['Boolean']>
+	/** A unknown follow module */
+	unknownFollowModule?: InputMaybe<UnknownFollowModuleParams>
 }
 
 export type FollowModuleRedeemParams = {
@@ -1012,6 +1043,8 @@ export type FollowModuleRedeemParams = {
 	feeFollowModule?: InputMaybe<FeeFollowModuleRedeemParams>
 	/** The profile follower module */
 	profileFollowModule?: InputMaybe<ProfileFollowModuleRedeemParams>
+	/** A unknown follow module */
+	unknownFollowModule?: InputMaybe<UnknownFollowModuleRedeemParams>
 }
 
 /** The follow module types */
@@ -1019,6 +1052,7 @@ export enum FollowModules {
 	FeeFollowModule = 'FeeFollowModule',
 	ProfileFollowModule = 'ProfileFollowModule',
 	RevertFollowModule = 'RevertFollowModule',
+	UnknownFollowModule = 'UnknownFollowModule',
 }
 
 export type FollowOnlyReferenceModuleSettings = {
@@ -1026,6 +1060,10 @@ export type FollowOnlyReferenceModuleSettings = {
 	contractAddress: Scalars['ContractAddress']
 	/** The reference modules enum */
 	type: ReferenceModules
+}
+
+export type FollowProxyAction = {
+	freeFollow?: InputMaybe<FreeFollowProxyAction>
 }
 
 export type FollowRequest = {
@@ -1091,6 +1129,14 @@ export type FreeCollectModuleSettings = {
 	type: CollectModules
 }
 
+export type FreeCollectProxyAction = {
+	publicationId: Scalars['InternalPublicationId']
+}
+
+export type FreeFollowProxyAction = {
+	profileId: Scalars['ProfileId']
+}
+
 export type GenerateModuleCurrencyApproval = {
 	__typename?: 'GenerateModuleCurrencyApproval'
 	data: Scalars['BlockchainData']
@@ -1103,8 +1149,17 @@ export type GenerateModuleCurrencyApprovalDataRequest = {
 	currency: Scalars['ContractAddress']
 	followModule?: InputMaybe<FollowModules>
 	referenceModule?: InputMaybe<ReferenceModules>
+	unknownCollectModule?: InputMaybe<Scalars['ContractAddress']>
+	unknownFollowModule?: InputMaybe<Scalars['ContractAddress']>
+	unknownReferenceModule?: InputMaybe<Scalars['ContractAddress']>
 	/** Floating point number as string (e.g. 42.009837). The server will move its decimal places for you */
 	value: Scalars['String']
+}
+
+export type GetPublicationMetadataStatusRequest = {
+	publicationId?: InputMaybe<Scalars['InternalPublicationId']>
+	txHash?: InputMaybe<Scalars['TxHash']>
+	txId?: InputMaybe<Scalars['TxId']>
 }
 
 export type GlobalProtocolStats = {
@@ -1225,6 +1280,10 @@ export type MainPostReference = Mirror | Post
 /** The Media url */
 export type Media = {
 	__typename?: 'Media'
+	/** The alt tags for accessibility */
+	altTag?: Maybe<Scalars['String']>
+	/** The cover for any video or audio you attached */
+	cover?: Maybe<Scalars['String']>
 	/** Height - will always be null on the public API */
 	height?: Maybe<Scalars['Int']>
 	/** The image/audio/video mime type for the publication */
@@ -1249,6 +1308,16 @@ export type MediaSet = {
 }
 
 export type MentionPublication = Comment | Post
+
+/** The metadata attribute input */
+export type MetadataAttributeInput = {
+	/** The display type */
+	displayType?: InputMaybe<PublicationMetadataDisplayTypes>
+	/** The trait type - can be anything its the name it will render so include spaces */
+	traitType: Scalars['String']
+	/** The value */
+	value: Scalars['String']
+}
 
 /** The metadata attribute output */
 export type MetadataAttributeOutput = {
@@ -1357,19 +1426,25 @@ export type Mutation = {
 	createBurnProfileTypedData: CreateBurnProfileBroadcastItemResult
 	createCollectTypedData: CreateCollectBroadcastItemResult
 	createCommentTypedData: CreateCommentBroadcastItemResult
+	createCommentViaDispatcher: RelayResult
 	createFollowTypedData: CreateFollowBroadcastItemResult
 	createMirrorTypedData: CreateMirrorBroadcastItemResult
+	createMirrorViaDispatcher: RelayResult
 	createPostTypedData: CreatePostBroadcastItemResult
+	createPostViaDispatcher: RelayResult
 	createProfile: RelayResult
 	createSetDefaultProfileTypedData: SetDefaultProfileBroadcastItemResult
 	createSetDispatcherTypedData: CreateSetDispatcherBroadcastItemResult
 	createSetFollowModuleTypedData: CreateSetFollowModuleBroadcastItemResult
 	createSetFollowNFTUriTypedData: CreateSetFollowNftUriBroadcastItemResult
 	createSetProfileImageURITypedData: CreateSetProfileImageUriBroadcastItemResult
+	createSetProfileImageURIViaDispatcher: RelayResult
 	createSetProfileMetadataTypedData: CreateSetProfileMetadataUriBroadcastItemResult
+	createSetProfileMetadataViaDispatcher: RelayResult
 	createToggleFollowTypedData: CreateToggleFollowBroadcastItemResult
 	createUnfollowTypedData: CreateUnfollowBroadcastItemResult
 	hidePublication?: Maybe<Scalars['Void']>
+	proxyAction: Scalars['ProxyActionId']
 	refresh: AuthenticationResult
 	removeReaction?: Maybe<Scalars['Void']>
 	reportPublication?: Maybe<Scalars['Void']>
@@ -1410,6 +1485,10 @@ export type MutationCreateCommentTypedDataArgs = {
 	request: CreatePublicCommentRequest
 }
 
+export type MutationCreateCommentViaDispatcherArgs = {
+	request: CreatePublicCommentRequest
+}
+
 export type MutationCreateFollowTypedDataArgs = {
 	options?: InputMaybe<TypedDataOptions>
 	request: FollowRequest
@@ -1420,8 +1499,16 @@ export type MutationCreateMirrorTypedDataArgs = {
 	request: CreateMirrorRequest
 }
 
+export type MutationCreateMirrorViaDispatcherArgs = {
+	request: CreateMirrorRequest
+}
+
 export type MutationCreatePostTypedDataArgs = {
 	options?: InputMaybe<TypedDataOptions>
+	request: CreatePublicPostRequest
+}
+
+export type MutationCreatePostViaDispatcherArgs = {
 	request: CreatePublicPostRequest
 }
 
@@ -1454,8 +1541,16 @@ export type MutationCreateSetProfileImageUriTypedDataArgs = {
 	request: UpdateProfileImageRequest
 }
 
+export type MutationCreateSetProfileImageUriViaDispatcherArgs = {
+	request: UpdateProfileImageRequest
+}
+
 export type MutationCreateSetProfileMetadataTypedDataArgs = {
 	options?: InputMaybe<TypedDataOptions>
+	request: CreatePublicSetProfileMetadataUriRequest
+}
+
+export type MutationCreateSetProfileMetadataViaDispatcherArgs = {
 	request: CreatePublicSetProfileMetadataUriRequest
 }
 
@@ -1473,6 +1568,10 @@ export type MutationHidePublicationArgs = {
 	request: HidePublicationRequest
 }
 
+export type MutationProxyActionArgs = {
+	request: ProxyActionRequest
+}
+
 export type MutationRefreshArgs = {
 	request: RefreshRequest
 }
@@ -1483,6 +1582,15 @@ export type MutationRemoveReactionArgs = {
 
 export type MutationReportPublicationArgs = {
 	request: ReportPublicationRequest
+}
+
+export type MutualFollowersProfilesQueryRequest = {
+	cursor?: InputMaybe<Scalars['Cursor']>
+	limit?: InputMaybe<Scalars['LimitScalar']>
+	/** The profile id your viewing */
+	viewingProfileId: Scalars['ProfileId']
+	/** The profile id you want the result to come back as your viewing from */
+	yourProfileId: Scalars['ProfileId']
 }
 
 /** The nft type */
@@ -1656,6 +1764,8 @@ export type OnChainIdentity = {
 	proofOfHumanity: Scalars['Boolean']
 	/** The sybil dot org information */
 	sybilDotOrg: SybilDotOrgIdentity
+	/** The worldcoin identity */
+	worldcoin: WorldcoinIdentity
 }
 
 /** The nft type */
@@ -1737,6 +1847,12 @@ export type PaginatedTimelineResult = {
 export type PaginatedWhoCollectedResult = {
 	__typename?: 'PaginatedWhoCollectedResult'
 	items: Array<Wallet>
+	pageInfo: PaginatedResultInfo
+}
+
+export type PaginatedWhoReactedResult = {
+	__typename?: 'PaginatedWhoReactedResult'
+	items: Array<WhoReactedResult>
 	pageInfo: PaginatedResultInfo
 }
 
@@ -1970,6 +2086,38 @@ export type ProfileStatsPublicationsTotalArgs = {
 	forSources: Array<Scalars['Sources']>
 }
 
+export type ProxyActionError = {
+	__typename?: 'ProxyActionError'
+	lastKnownTxId?: Maybe<Scalars['TxId']>
+	reason: Scalars['String']
+}
+
+export type ProxyActionQueued = {
+	__typename?: 'ProxyActionQueued'
+	queuedAt: Scalars['DateTime']
+}
+
+export type ProxyActionRequest = {
+	collect?: InputMaybe<CollectProxyAction>
+	follow?: InputMaybe<FollowProxyAction>
+}
+
+export type ProxyActionStatusResult = {
+	__typename?: 'ProxyActionStatusResult'
+	status: ProxyActionStatusTypes
+	txHash: Scalars['TxHash']
+	txId: Scalars['TxId']
+}
+
+export type ProxyActionStatusResultUnion = ProxyActionError | ProxyActionQueued | ProxyActionStatusResult
+
+/** The proxy action status */
+export enum ProxyActionStatusTypes {
+	Complete = 'COMPLETE',
+	Minting = 'MINTING',
+	Transferring = 'TRANSFERRING',
+}
+
 export type Publication = Comment | Mirror | Post
 
 /** The publication content warning */
@@ -2014,6 +2162,17 @@ export type PublicationMetadataFilters = {
 	tags?: InputMaybe<PublicationMetadataTagsFilter>
 }
 
+/** The metadata attribute output */
+export type PublicationMetadataMediaInput = {
+	/** The alt tags for accessibility */
+	altTag?: InputMaybe<Scalars['String']>
+	/** The cover for any video or audio you attached */
+	cover?: InputMaybe<Scalars['String']>
+	item: Scalars['Url']
+	/** This is the mime type of media */
+	type?: InputMaybe<Scalars['MimeType']>
+}
+
 export type PublicationMetadataStatus = {
 	__typename?: 'PublicationMetadataStatus'
 	/** If metadata validation failed it will put a reason why here */
@@ -2024,6 +2183,7 @@ export type PublicationMetadataStatus = {
 /** publication metadata status type */
 export enum PublicationMetadataStatusType {
 	MetadataValidationFailed = 'METADATA_VALIDATION_FAILED',
+	NotFound = 'NOT_FOUND',
 	Pending = 'PENDING',
 	Success = 'SUCCESS',
 }
@@ -2034,6 +2194,88 @@ export type PublicationMetadataTagsFilter = {
 	all?: InputMaybe<Array<Scalars['String']>>
 	/** Needs to only match one of */
 	oneOf?: InputMaybe<Array<Scalars['String']>>
+}
+
+export type PublicationMetadataV1Input = {
+	/**
+	 * A URL to a multi-media attachment for the item. The file extensions GLTF, GLB, WEBM, MP4, M4V, OGV,
+	 *       and OGG are supported, along with the audio-only extensions MP3, WAV, and OGA.
+	 *       Animation_url also supports HTML pages, allowing you to build rich experiences and interactive NFTs using JavaScript canvas,
+	 *       WebGL, and more. Scripts and relative paths within the HTML page are now supported. However, access to browser extensions is not supported.
+	 */
+	animation_url?: InputMaybe<Scalars['Url']>
+	/**  This is the appId the content belongs to */
+	appId?: InputMaybe<Scalars['Sources']>
+	/**  These are the attributes for the item, which will show up on the OpenSea and others NFT trading websites on the item. */
+	attributes: Array<MetadataAttributeInput>
+	/** The content of a publication. If this is blank `media` must be defined or its out of spec */
+	content?: InputMaybe<Scalars['Markdown']>
+	/** A human-readable description of the item. */
+	description?: InputMaybe<Scalars['String']>
+	/**
+	 * This is the URL that will appear below the asset's image on OpenSea and others etc
+	 *       and will allow users to leave OpenSea and view the item on the site.
+	 */
+	external_url?: InputMaybe<Scalars['Url']>
+	/** legacy to support OpenSea will store any NFT image here. */
+	image?: InputMaybe<Scalars['Url']>
+	/** This is the mime type of the image. This is used if your uploading more advanced cover images as sometimes ipfs does not emit the content header so this solves that */
+	imageMimeType?: InputMaybe<Scalars['MimeType']>
+	/**  This is lens supported attached media items to the publication */
+	media?: InputMaybe<Array<PublicationMetadataMediaInput>>
+	/** The metadata id can be anything but if your uploading to ipfs you will want it to be random.. using uuid could be an option! */
+	metadata_id: Scalars['String']
+	/** Name of the item. */
+	name: Scalars['String']
+	/** Signed metadata to validate the owner */
+	signatureContext?: InputMaybe<PublicationSignatureContextInput>
+	/** The metadata version. (1.0.0 | 2.0.0) */
+	version: Scalars['String']
+}
+
+export type PublicationMetadataV2Input = {
+	/**
+	 * A URL to a multi-media attachment for the item. The file extensions GLTF, GLB, WEBM, MP4, M4V, OGV,
+	 *       and OGG are supported, along with the audio-only extensions MP3, WAV, and OGA.
+	 *       Animation_url also supports HTML pages, allowing you to build rich experiences and interactive NFTs using JavaScript canvas,
+	 *       WebGL, and more. Scripts and relative paths within the HTML page are now supported. However, access to browser extensions is not supported.
+	 */
+	animation_url?: InputMaybe<Scalars['Url']>
+	/**  This is the appId the content belongs to */
+	appId?: InputMaybe<Scalars['Sources']>
+	/**  These are the attributes for the item, which will show up on the OpenSea and others NFT trading websites on the item. */
+	attributes: Array<MetadataAttributeInput>
+	/** The content of a publication. If this is blank `media` must be defined or its out of spec */
+	content?: InputMaybe<Scalars['Markdown']>
+	/** Ability to add a content warning */
+	contentWarning?: InputMaybe<PublicationContentWarning>
+	/** A human-readable description of the item. */
+	description?: InputMaybe<Scalars['String']>
+	/**
+	 * This is the URL that will appear below the asset's image on OpenSea and others etc
+	 *       and will allow users to leave OpenSea and view the item on the site.
+	 */
+	external_url?: InputMaybe<Scalars['Url']>
+	/** legacy to support OpenSea will store any NFT image here. */
+	image?: InputMaybe<Scalars['Url']>
+	/** This is the mime type of the image. This is used if your uploading more advanced cover images as sometimes ipfs does not emit the content header so this solves that */
+	imageMimeType?: InputMaybe<Scalars['MimeType']>
+	/** IOS 639-1 language code aka en or it and ISO 3166-1 alpha-2 region code aka US or IT aka en-US or it-IT */
+	locale: Scalars['Locale']
+	/** Main content focus that for this publication */
+	mainContentFocus: PublicationMainFocus
+	/**  This is lens supported attached media items to the publication */
+	media?: InputMaybe<Array<PublicationMetadataMediaInput>>
+	/** The metadata id can be anything but if your uploading to ipfs you will want it to be random.. using uuid could be an option! */
+	metadata_id: Scalars['String']
+	/** Name of the item. */
+	name: Scalars['String']
+	/** Signed metadata to validate the owner */
+	signatureContext?: InputMaybe<PublicationSignatureContextInput>
+	/** Ability to tag your publication */
+	tags?: InputMaybe<Array<Scalars['String']>>
+	/** The metadata version. (1.0.0 | 2.0.0) */
+	version: Scalars['String']
 }
 
 export type PublicationQueryRequest = {
@@ -2052,7 +2294,10 @@ export enum PublicationReportingFraudSubreason {
 /** Publication reporting illegal subreason */
 export enum PublicationReportingIllegalSubreason {
 	AnimalAbuse = 'ANIMAL_ABUSE',
+	DirectThreat = 'DIRECT_THREAT',
 	HumanAbuse = 'HUMAN_ABUSE',
+	ThreatIndividual = 'THREAT_INDIVIDUAL',
+	Violence = 'VIOLENCE',
 }
 
 /** Publication reporting reason */
@@ -2060,12 +2305,24 @@ export enum PublicationReportingReason {
 	Fraud = 'FRAUD',
 	Illegal = 'ILLEGAL',
 	Sensitive = 'SENSITIVE',
+	Spam = 'SPAM',
 }
 
 /** Publication reporting sensitive subreason */
 export enum PublicationReportingSensitiveSubreason {
 	Nsfw = 'NSFW',
 	Offensive = 'OFFENSIVE',
+}
+
+/** Publication reporting spam subreason */
+export enum PublicationReportingSpamSubreason {
+	FakeEngagement = 'FAKE_ENGAGEMENT',
+	ManipulationAlgo = 'MANIPULATION_ALGO',
+	Misleading = 'MISLEADING',
+	MisuseHashtags = 'MISUSE_HASHTAGS',
+	Repetitive = 'REPETITIVE',
+	SomethingElse = 'SOMETHING_ELSE',
+	Unrelated = 'UNRELATED',
 }
 
 /** The social comment */
@@ -2089,6 +2346,10 @@ export type PublicationSearchResult = {
 }
 
 export type PublicationSearchResultItem = Comment | Post
+
+export type PublicationSignatureContextInput = {
+	signature: Scalars['String']
+}
 
 /** Publication sort criteria */
 export enum PublicationSortCriteria {
@@ -2128,6 +2389,13 @@ export enum PublicationTypes {
 	Post = 'POST',
 }
 
+export type PublicationValidateMetadataResult = {
+	__typename?: 'PublicationValidateMetadataResult'
+	/** If `valid` is false it will put a reason why here */
+	reason?: Maybe<Scalars['String']>
+	valid: Scalars['Boolean']
+}
+
 export type PublicationsQueryRequest = {
 	/** The ethereum address */
 	collectedBy?: InputMaybe<Scalars['EthereumAddress']>
@@ -2152,18 +2420,20 @@ export type Query = {
 	approvedModuleAllowanceAmount: Array<ApprovedAllowanceAmount>
 	challenge: AuthChallengeResult
 	claimableHandles: ClaimableHandles
+	claimableStatus: ClaimStatus
 	defaultProfile?: Maybe<Profile>
 	doesFollow: Array<DoesFollowResponse>
 	enabledModuleCurrencies: Array<Erc20>
 	enabledModules: EnabledModules
 	exploreProfiles: ExploreProfileResult
 	explorePublications: ExplorePublicationResult
-	followerNftOwnedTokenIds: FollowerNftOwnedTokenIds
+	followerNftOwnedTokenIds?: Maybe<FollowerNftOwnedTokenIds>
 	followers: PaginatedFollowersResult
 	following: PaginatedFollowingResult
 	generateModuleCurrencyApprovalData: GenerateModuleCurrencyApproval
 	globalProtocolStats: GlobalProtocolStats
 	hasTxHashBeenIndexed: TransactionResult
+	mutualFollowersProfiles: PaginatedProfileResult
 	nftOwnershipChallenge: NftOwnershipChallengeResult
 	nfts: NfTsResult
 	notifications: PaginatedNotificationResult
@@ -2176,15 +2446,22 @@ export type Query = {
 	profilePublicationRevenue: ProfilePublicationRevenueResult
 	profilePublicationsForSale: PaginatedProfilePublicationsForSaleResult
 	profiles: PaginatedProfileResult
+	proxyActionStatus: ProxyActionStatusResultUnion
 	publication?: Maybe<Publication>
+	publicationMetadataStatus: PublicationMetadataStatus
 	publicationRevenue?: Maybe<PublicationRevenue>
 	publications: PaginatedPublicationResult
 	recommendedProfiles: Array<Profile>
+	rel?: Maybe<Scalars['Void']>
 	search: SearchResult
 	timeline: PaginatedTimelineResult
+	txIdToTxHash: Scalars['TxHash']
+	unknownEnabledModules: EnabledModules
 	userSigNonces: UserSigNonces
+	validatePublicationMetadata: PublicationValidateMetadataResult
 	verify: Scalars['Boolean']
 	whoCollectedPublication: PaginatedWhoCollectedResult
+	whoReactedPublication: PaginatedWhoReactedResult
 }
 
 export type QueryAllPublicationsTagsArgs = {
@@ -2239,6 +2516,10 @@ export type QueryHasTxHashBeenIndexedArgs = {
 	request: HasTxHashBeenIndexedRequest
 }
 
+export type QueryMutualFollowersProfilesArgs = {
+	request: MutualFollowersProfilesQueryRequest
+}
+
 export type QueryNftOwnershipChallengeArgs = {
 	request: NftOwnershipChallengeRequest
 }
@@ -2283,8 +2564,16 @@ export type QueryProfilesArgs = {
 	request: ProfileQueryRequest
 }
 
+export type QueryProxyActionStatusArgs = {
+	proxyActionId: Scalars['ProxyActionId']
+}
+
 export type QueryPublicationArgs = {
 	request: PublicationQueryRequest
+}
+
+export type QueryPublicationMetadataStatusArgs = {
+	request: GetPublicationMetadataStatusRequest
 }
 
 export type QueryPublicationRevenueArgs = {
@@ -2295,6 +2584,10 @@ export type QueryPublicationsArgs = {
 	request: PublicationsQueryRequest
 }
 
+export type QueryRelArgs = {
+	request: RelRequest
+}
+
 export type QuerySearchArgs = {
 	request: SearchQueryRequest
 }
@@ -2303,12 +2596,24 @@ export type QueryTimelineArgs = {
 	request: TimelineRequest
 }
 
+export type QueryTxIdToTxHashArgs = {
+	txId: Scalars['TxId']
+}
+
+export type QueryValidatePublicationMetadataArgs = {
+	request: ValidatePublicationMetadataRequest
+}
+
 export type QueryVerifyArgs = {
 	request: VerifyRequest
 }
 
 export type QueryWhoCollectedPublicationArgs = {
 	request: WhoCollectedPublicationRequest
+}
+
+export type QueryWhoReactedPublicationArgs = {
+	request: WhoReactedPublicationRequest
 }
 
 export type ReactionFieldResolverRequest = {
@@ -2331,22 +2636,30 @@ export enum ReactionTypes {
 	Upvote = 'UPVOTE',
 }
 
-export type ReferenceModule = FollowOnlyReferenceModuleSettings
+export type ReferenceModule = FollowOnlyReferenceModuleSettings | UnknownReferenceModuleSettings
 
 export type ReferenceModuleParams = {
 	/** The follower only reference module */
 	followerOnlyReferenceModule?: InputMaybe<Scalars['Boolean']>
+	/** A unknown reference module */
+	unknownReferenceModule?: InputMaybe<UnknownReferenceModuleParams>
 }
 
 /** The reference module types */
 export enum ReferenceModules {
 	FollowerOnlyReferenceModule = 'FollowerOnlyReferenceModule',
+	UnknownReferenceModule = 'UnknownReferenceModule',
 }
 
 /** The refresh request */
 export type RefreshRequest = {
 	/** The refresh token */
 	refreshToken: Scalars['Jwt']
+}
+
+export type RelRequest = {
+	ethereumAddress: Scalars['EthereumAddress']
+	secret: Scalars['String']
 }
 
 export type RelayError = {
@@ -2384,6 +2697,7 @@ export type ReportingReasonInputParams = {
 	fraudReason?: InputMaybe<FraudReasonInputParams>
 	illegalReason?: InputMaybe<IllegalReasonInputParams>
 	sensitiveReason?: InputMaybe<SensitiveReasonInputParams>
+	spamReason?: InputMaybe<SpamReasonInputParams>
 }
 
 export type ReservedClaimableHandle = {
@@ -2474,7 +2788,7 @@ export type SetDefaultProfileEip712TypedDataValue = {
 }
 
 export type SetDispatcherRequest = {
-	/** The dispatcher address - they can post, comment, mirror, set follow module, change your profile picture on your behalf. */
+	/** The dispatcher address - they can post, comment, mirror, set follow module, change your profile picture on your behalf, if left as none it will use the built in dispatcher address. */
 	dispatcher?: InputMaybe<Scalars['EthereumAddress']>
 	/** If you want to enable or disable it */
 	enable?: InputMaybe<Scalars['Boolean']>
@@ -2495,6 +2809,11 @@ export type SingleProfileQueryRequest = {
 	handle?: InputMaybe<Scalars['Handle']>
 	/** The profile id */
 	profileId?: InputMaybe<Scalars['ProfileId']>
+}
+
+export type SpamReasonInputParams = {
+	reason: PublicationReportingReason
+	subreason: PublicationReportingSpamSubreason
 }
 
 export type SybilDotOrgIdentity = {
@@ -2630,6 +2949,56 @@ export type UnfollowRequest = {
 	profile: Scalars['ProfileId']
 }
 
+export type UnknownCollectModuleParams = {
+	contractAddress: Scalars['ContractAddress']
+	/** The encoded data to submit with the module */
+	data: Scalars['BlockchainData']
+}
+
+export type UnknownCollectModuleSettings = {
+	__typename?: 'UnknownCollectModuleSettings'
+	/** The data used to setup the module which you can decode with your known ABI  */
+	collectModuleReturnData: Scalars['CollectModuleData']
+	contractAddress: Scalars['ContractAddress']
+	/** The collect modules enum */
+	type: CollectModules
+}
+
+export type UnknownFollowModuleParams = {
+	contractAddress: Scalars['ContractAddress']
+	/** The encoded data to submit with the module */
+	data: Scalars['BlockchainData']
+}
+
+export type UnknownFollowModuleRedeemParams = {
+	/** The encoded data to submit with the module */
+	data: Scalars['BlockchainData']
+}
+
+export type UnknownFollowModuleSettings = {
+	__typename?: 'UnknownFollowModuleSettings'
+	contractAddress: Scalars['ContractAddress']
+	/** The data used to setup the module which you can decode with your known ABI  */
+	followModuleReturnData: Scalars['FollowModuleData']
+	/** The follow modules enum */
+	type: FollowModules
+}
+
+export type UnknownReferenceModuleParams = {
+	contractAddress: Scalars['ContractAddress']
+	/** The encoded data to submit with the module */
+	data: Scalars['BlockchainData']
+}
+
+export type UnknownReferenceModuleSettings = {
+	__typename?: 'UnknownReferenceModuleSettings'
+	contractAddress: Scalars['ContractAddress']
+	/** The data used to setup the module which you can decode with your known ABI  */
+	referenceModuleReturnData: Scalars['ReferenceModuleData']
+	/** The reference modules enum */
+	type: ReferenceModules
+}
+
 export type UpdateProfileImageRequest = {
 	/** The nft data */
 	nftData?: InputMaybe<NftData>
@@ -2642,6 +3011,11 @@ export type UserSigNonces = {
 	__typename?: 'UserSigNonces'
 	lensHubOnChainSigNonce: Scalars['Nonce']
 	peripheryOnChainSigNonce: Scalars['Nonce']
+}
+
+export type ValidatePublicationMetadataRequest = {
+	metadatav1?: InputMaybe<PublicationMetadataV1Input>
+	metadatav2?: InputMaybe<PublicationMetadataV2Input>
 }
 
 /** The access request */
@@ -2664,6 +3038,31 @@ export type WhoCollectedPublicationRequest = {
 	publicationId: Scalars['InternalPublicationId']
 }
 
+export type WhoReactedPublicationRequest = {
+	cursor?: InputMaybe<Scalars['Cursor']>
+	limit?: InputMaybe<Scalars['LimitScalar']>
+	/** Internal publication id */
+	publicationId: Scalars['InternalPublicationId']
+}
+
+/** The Profile */
+export type WhoReactedResult = {
+	__typename?: 'WhoReactedResult'
+	profile: Profile
+	/** The reaction */
+	reaction: ReactionTypes
+	/** The reaction */
+	reactionAt: Scalars['DateTime']
+	/** The reaction id */
+	reactionId: Scalars['ReactionId']
+}
+
+export type WorldcoinIdentity = {
+	__typename?: 'WorldcoinIdentity'
+	/** If the profile has verified as a user */
+	isHuman: Scalars['Boolean']
+}
+
 export interface PossibleTypesResultData {
 	possibleTypes: {
 		[key: string]: string[]
@@ -2678,8 +3077,14 @@ const result: PossibleTypesResultData = {
 			'LimitedTimedFeeCollectModuleSettings',
 			'RevertCollectModuleSettings',
 			'TimedFeeCollectModuleSettings',
+			'UnknownCollectModuleSettings',
 		],
-		FollowModule: ['FeeFollowModuleSettings', 'ProfileFollowModuleSettings', 'RevertFollowModuleSettings'],
+		FollowModule: [
+			'FeeFollowModuleSettings',
+			'ProfileFollowModuleSettings',
+			'RevertFollowModuleSettings',
+			'UnknownFollowModuleSettings',
+		],
 		MainPostReference: ['Mirror', 'Post'],
 		MentionPublication: ['Comment', 'Post'],
 		MirrorablePublication: ['Comment', 'Post'],
@@ -2691,10 +3096,11 @@ const result: PossibleTypesResultData = {
 			'NewMirrorNotification',
 		],
 		ProfileMedia: ['MediaSet', 'NftImage'],
+		ProxyActionStatusResultUnion: ['ProxyActionError', 'ProxyActionQueued', 'ProxyActionStatusResult'],
 		Publication: ['Comment', 'Mirror', 'Post'],
 		PublicationForSale: ['Comment', 'Post'],
 		PublicationSearchResultItem: ['Comment', 'Post'],
-		ReferenceModule: ['FollowOnlyReferenceModuleSettings'],
+		ReferenceModule: ['FollowOnlyReferenceModuleSettings', 'UnknownReferenceModuleSettings'],
 		RelayResult: ['RelayError', 'RelayerResult'],
 		SearchResult: ['ProfileSearchResult', 'PublicationSearchResult'],
 		TransactionResult: ['TransactionError', 'TransactionIndexedResult'],

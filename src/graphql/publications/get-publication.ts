@@ -119,6 +119,11 @@ const GET_PUBLICATION = gql`
 			...MetadataOutputFields
 		}
 		profile {
+			onChainIdentity {
+				worldcoin {
+					isHuman
+				}
+			}
 			id
 			handle
 			name

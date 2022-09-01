@@ -9,6 +9,11 @@ const GET_PROFILES = gql`
 				handle
 				name
 				bio
+				onChainIdentity {
+					worldcoin {
+						isHuman
+					}
+				}
 				stats {
 					totalFollowers
 					totalPosts

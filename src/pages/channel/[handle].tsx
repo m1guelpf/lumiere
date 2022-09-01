@@ -14,6 +14,7 @@ import { GetStaticPaths, GetStaticProps } from 'next'
 import { useProfile } from '@/context/ProfileContext'
 import TwitterIcon from '@/components/Icons/TwitterIcon'
 import GET_PROFILE from '@/graphql/profiles/get-profile'
+import WorldIdBadge from '@/components/Icons/WorldIdBadge'
 import { CogIcon, GlobeAltIcon } from '@heroicons/react/outline'
 import { Post, Profile, Query, SingleProfileQueryRequest } from '@/types/lens'
 import GET_USER_PUBLICATIONS from '@/graphql/publications/get-user-publications'
@@ -84,6 +85,9 @@ const ChannelPage: FC<{ profile: Profile }> = ({ profile }) => {
 								<div className="flex items-baseline space-x-1">
 									<p className="text-2xl">{profile?.name ?? profile?.handle ?? <Skeleton />}</p>
 									<VerifiedIcon profileId={profile?.id} className="w-4 h-4 text-gray-600" />
+									{profile?.onChainIdentity?.worldcoin?.isHuman && (
+										<WorldIdBadge width={16} height={16} />
+									)}
 								</div>
 								<p className="text-xs md:text-sm max-w-prose text-gray-600">
 									{profile ? profile.bio : <Skeleton count={2} width={230} />}
