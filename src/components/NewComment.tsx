@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
+import { useModal } from 'connectkit'
 import LensAvatar from './LensAvatar'
 import { toastOn } from '@/lib/toasts'
 import { useRouter } from 'next/router'
@@ -14,6 +15,7 @@ const NewComment: FC<{ videoId: number; onChange?: () => void; onIndex?: () => v
 	onChange,
 	onIndex,
 }) => {
+	const { setOpen } = useModal()
 	const router = useRouter()
 	const { profile, isAuthenticated } = useProfile()
 	const { createComment, loading } = useCreateComment(videoId, { onIndex })
@@ -22,7 +24,7 @@ const NewComment: FC<{ videoId: number; onChange?: () => void; onIndex?: () => v
 	const [inputExpanded, setInputExpanded] = useState<boolean>(false)
 
 	const handleInputFocus: FocusEventHandler<HTMLInputElement> = () => {
-		if (!isAuthenticated) return router.push('/login')
+		if (!isAuthenticated) return setOpen(true)
 
 		setInputExpanded(true)
 	}
@@ -99,7 +101,7 @@ const NewComment: FC<{ videoId: number; onChange?: () => void; onIndex?: () => v
 								loading
 									? 'disabled:cursor-wait disabled:animate-pulse'
 									: 'disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400',
-								'px-3 py-2 bg-blue-500 uppercase text-white font-medium text-sm rounded-md transition-all'
+								'px-3 py-2 bg-red-500 uppercase text-white font-medium text-sm rounded-md transition-all'
 							)}
 						>
 							Comment

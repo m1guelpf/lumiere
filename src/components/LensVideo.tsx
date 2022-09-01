@@ -58,7 +58,7 @@ const LensVideo: FC<{ video: Maybe<Post> }> = ({ video }) => {
 					autoPiP
 					mediaTitle={video?.metadata?.name}
 				>
-					{source && <source src={source.url} type={source.mimeType} />}
+					{source && <source data-src={source.url} type={source.mimeType} />}
 				</Video>
 				<DefaultUi noControls>
 					<DefaultControls hideOnMouseLeave activeDuration={2000} />

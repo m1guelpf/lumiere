@@ -48,7 +48,7 @@ const Layout: FC<{ children: ReactNode }> = ({ children }) => {
 								{({ logout }) => (
 									<Menu as="div" className="ml-3 relative">
 										<div>
-											<Menu.Button className="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+											<Menu.Button className="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
 												<span className="sr-only">Open user menu</span>
 												<LensAvatar profile={profile} width={32} height={32} />
 											</Menu.Button>
