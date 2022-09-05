@@ -77,6 +77,7 @@ const useFollowProfile = ({ onSuccess, onIndex }: FollowProfileOptions = {}): Fo
 	const { resolveOnAction } = useWaitForAction({
 		onParse: onIndex,
 		txHash: txData?.hash,
+		expectsMetadata: false,
 		txId: (broadcastResult?.broadcast as RelayerResult)?.txId as string,
 	})
 
