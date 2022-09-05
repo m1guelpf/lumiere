@@ -9,6 +9,7 @@ const GET_PROFILES = gql`
 				handle
 				name
 				bio
+				isDefault
 				onChainIdentity {
 					worldcoin {
 						isHuman
@@ -17,6 +18,25 @@ const GET_PROFILES = gql`
 				stats {
 					totalFollowers
 					totalPosts
+				}
+				followModule {
+					... on FeeFollowModuleSettings {
+						type
+						amount {
+							asset {
+								name
+								address
+							}
+							value
+						}
+						recipient
+					}
+					... on ProfileFollowModuleSettings {
+						type
+					}
+					... on RevertFollowModuleSettings {
+						type
+					}
 				}
 				picture {
 					__typename

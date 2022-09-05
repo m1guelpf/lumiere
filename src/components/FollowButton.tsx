@@ -5,10 +5,12 @@ import useFollowing from '@/hooks/lens/useFollowing'
 import { FC, useCallback, useMemo, useState } from 'react'
 import useFollowProfile from '@/hooks/lens/useFollowProfile'
 import { FollowModuleRedeemParams, Profile } from '@/types/lens'
+import useUnfollowProfile from '@/hooks/lens/useUnfollowProfile'
 
 const FollowButton: FC<{ profile: Profile }> = ({ profile }) => {
-	const [tempFollowing, setTempFollowing] = useState<boolean>(false)
+	const { unfollowProfile } = useUnfollowProfile()
 	const { data: isFollowing, refetch } = useFollowing(profile?.id)
+	const [tempFollowing, setTempFollowing] = useState<boolean>(false)
 	const { followProfile } = useFollowProfile({ onSuccess: () => setTempFollowing(true), onIndex: refetch })
 
 	const followModule = useMemo<FollowModuleRedeemParams>(() => {
@@ -44,14 +46,22 @@ const FollowButton: FC<{ profile: Profile }> = ({ profile }) => {
 		})
 	}, [profile?.id, followModule, followProfile])
 
-	const unfollowProfile = () => {
-		toast.error('Not implemented yet')
-	}
+	const unfollow = useCallback(async () => {
+		const waitForIndex = await unfollowProfile(profile?.id)
+		setTempFollowing(false)
+
+		await toastOn(waitForIndex, {
+			loading: 'Processing subscription...',
+			success: 'Unsubscribed from channel!',
+			error: ERROR_MESSAGE,
+		})
+		refetch()
+	}, [profile?.id, unfollowProfile, refetch])
 
 	if (isFollowing || tempFollowing) {
 		return (
 			<button
-				onClick={unfollowProfile}
+				onClick={unfollow}
 				className="px-3 py-2 bg-gray-200 uppercase text-gray-600 font-medium text-sm rounded-md"
 			>
 				Subscribed
@@ -74,7 +84,7 @@ const FollowButton: FC<{ profile: Profile }> = ({ profile }) => {
 		return (
 			<button
 				onClick={follow}
-				className="px-3 py-2 bg-red-600 uppercase text-red-50 font-medium text-sm rounded-md"
+				className="px-3 py-2 bg-red-600 uppercase text-red-50 font-medium text-sm rounded-md whitespace-nowrap"
 			>
 				Join for {profile.followModule.amount.value} ${profile.followModule.amount.asset.symbol}
 			</button>

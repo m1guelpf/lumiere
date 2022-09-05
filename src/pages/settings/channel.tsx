@@ -11,8 +11,8 @@ import LensAvatar from '@/components/LensAvatar'
 import { useProfile } from '@/context/ProfileContext'
 import SettingsLayout from '@/components/SettingsLayout'
 import { ProfileMetadataVersions } from '@/types/metadata'
+import { IpfsMediaPicker } from '@/components/MediaPicker'
 import useUpdateProfile from '@/hooks/lens/useUpdateProfile'
-import MediaPicker, { IpfsMediaPicker } from '@/components/MediaPicker'
 import useUpdateProfilePicture from '@/hooks/lens/useUpdateProfilePicture'
 
 const SettingsPage = () => {

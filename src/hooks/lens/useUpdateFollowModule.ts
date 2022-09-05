@@ -3,35 +3,64 @@ import { omit } from '@/lib/utils'
 import { useCallback } from 'react'
 import toast from 'react-hot-toast'
 import { toastOn } from '@/lib/toasts'
-import { useMutation } from '@apollo/client'
+import { gql, useMutation } from '@apollo/client'
 import useWaitForAction from './useWaitForAction'
 import LensHubProxy from '@/abis/LensHubProxy.json'
 import { useProfile } from '@/context/ProfileContext'
 import BROADCAST_MUTATION from '@/graphql/broadcast/broadcast'
-import FOLLOW_REQUEST_SIG from '@/graphql/follows/follow-request'
 import { ERROR_MESSAGE, LENSHUB_PROXY, RELAYER_ON } from '@/lib/consts'
 import { useAccount, useContractWrite, useNetwork, useSignTypedData } from 'wagmi'
-import { FollowModuleRedeemParams, Mutation, MutationCreateFollowTypedDataArgs, RelayerResult } from '@/types/lens'
+import { Mutation, RelayerResult, MutationCreateSetFollowModuleTypedDataArgs, FollowModuleParams } from '@/types/lens'
 
-type FollowProfile = {
-	followProfile: (profile: string, followModule: FollowModuleRedeemParams) => Promise<() => Promise<unknown>>
+const UPDATE_FOLLOW_MODULE_SIG = gql`
+	mutation ($request: CreateSetFollowModuleRequest!) {
+		createSetFollowModuleTypedData(request: $request) {
+			id
+			expiresAt
+			typedData {
+				types {
+					SetFollowModuleWithSig {
+						name
+						type
+					}
+				}
+				domain {
+					name
+					chainId
+					version
+					verifyingContract
+				}
+				value {
+					nonce
+					deadline
+					profileId
+					followModule
+					followModuleInitData
+				}
+			}
+		}
+	}
+`
+
+type UpdateFollowModule = {
+	updateFollowModule: (followModule: FollowModuleParams) => Promise<() => Promise<unknown>>
 	loading: boolean
 	error?: Error
 }
-type FollowProfileOptions = { onSuccess?: () => void; onIndex?: () => void }
+type UpdateFollowModuleOptions = { onSuccess?: () => void; onIndex?: () => void }
 
-const useFollowProfile = ({ onSuccess, onIndex }: FollowProfileOptions = {}): FollowProfile => {
+const useUpdateFollowModule = ({ onSuccess, onIndex }: UpdateFollowModuleOptions = {}): UpdateFollowModule => {
 	const { chain } = useNetwork()
-	const { address, isConnected } = useAccount()
-	const { profile: activeProfile } = useProfile()
+	const { profile } = useProfile()
+	const { isConnected } = useAccount()
 
 	//#region Data Hooks
 	const [getTypedData, { loading: dataLoading, error: dataError }] = useMutation<
 		{
-			createFollowTypedData: Mutation['createFollowTypedData']
+			createSetFollowModuleTypedData: Mutation['createSetFollowModuleTypedData']
 		},
-		MutationCreateFollowTypedDataArgs
-	>(FOLLOW_REQUEST_SIG, {
+		MutationCreateSetFollowModuleTypedDataArgs
+	>(UPDATE_FOLLOW_MODULE_SIG, {
 		onError: error => toast.error(error.message ?? ERROR_MESSAGE),
 	})
 	const {
@@ -44,15 +73,15 @@ const useFollowProfile = ({ onSuccess, onIndex }: FollowProfileOptions = {}): Fo
 		},
 	})
 	const {
-		data: txData,
 		writeAsync: sendTx,
+		data: txData,
 		isLoading: txLoading,
 		error: txError,
 	} = useContractWrite({
 		mode: 'recklesslyUnprepared',
 		addressOrName: LENSHUB_PROXY,
 		contractInterface: LensHubProxy,
-		functionName: 'followWithSig',
+		functionName: 'setFollowModuleWithSig',
 		onError: (error: any) => {
 			toast.error(error?.data?.message ?? error?.message)
 		},
@@ -77,37 +106,37 @@ const useFollowProfile = ({ onSuccess, onIndex }: FollowProfileOptions = {}): Fo
 	const { resolveOnAction } = useWaitForAction({
 		onParse: onIndex,
 		txHash: txData?.hash,
+		expectsMetadata: false,
 		txId: (broadcastResult?.broadcast as RelayerResult)?.txId as string,
 	})
 
-	const followProfile = useCallback(
-		async (profile: string, followModule: FollowModuleRedeemParams) => {
+	const updateFollowModule = useCallback(
+		async (followModule: FollowModuleParams) => {
 			if (!isConnected) throw toast.error('Please connect your wallet first.')
 			if (chain?.unsupported) throw toast.error('Please change your network.')
-			if (!activeProfile?.id) throw toast.error('Please create a Lens profile first.')
+			if (!profile?.id) throw toast.error('Please create a Lens profile first.')
 
 			const { id, typedData } = await toastOn(
 				async () => {
 					const {
-						data: { createFollowTypedData },
+						data: { createSetFollowModuleTypedData },
 					} = await getTypedData({
 						variables: {
 							request: {
-								follow: [{ profile, followModule }],
+								followModule,
+								profileId: profile.id,
 							},
 						},
 					})
 
-					return createFollowTypedData
+					return createSetFollowModuleTypedData
 				},
 				{
 					loading: 'Getting signature details...',
 					success: 'Signature is ready!',
-					error: '',
+					error: 'Something went wrong! Please try again later',
 				}
 			)
-
-			const { profileIds, datas, deadline } = typedData.value
 
 			const signature = await signRequest({
 				domain: omit(typedData?.domain, '__typename'),
@@ -142,10 +171,10 @@ const useFollowProfile = ({ onSuccess, onIndex }: FollowProfileOptions = {}): Fo
 				() =>
 					sendTx({
 						recklesslySetUnpreparedArgs: {
-							follower: address,
-							profileIds,
-							datas,
-							sig: { v, r, s, deadline },
+							profileId: profile.id,
+							followModule: typedData.value.followModule,
+							followModuleInitData: typedData.value.followModuleInitData,
+							sig: { v, r, s, deadline: typedData.value.deadline },
 						},
 					}),
 				{ loading: 'Sending transaction...', success: 'Transaction sent!', error: ERROR_MESSAGE }
@@ -153,24 +182,14 @@ const useFollowProfile = ({ onSuccess, onIndex }: FollowProfileOptions = {}): Fo
 
 			return resolveOnAction({ txHash: tx.hash })
 		},
-		[
-			address,
-			isConnected,
-			chain?.unsupported,
-			activeProfile?.id,
-			getTypedData,
-			signRequest,
-			broadcast,
-			sendTx,
-			resolveOnAction,
-		]
+		[isConnected, chain?.unsupported, profile?.id, getTypedData, signRequest, broadcast, sendTx, resolveOnAction]
 	)
 
 	return {
-		followProfile,
+		updateFollowModule,
 		loading: dataLoading || sigLoading || txLoading || gasslessLoading,
 		error: dataError || sigError || txError || gasslessError,
 	}
 }
 
-export default useFollowProfile
+export default useUpdateFollowModule

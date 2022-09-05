@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import format from 'date-fns/format'
 import Meta from '@/components/Meta'
+import { useRouter } from 'next/router'
 import { APP_NAME } from '@/lib/consts'
 import { nodeClient } from '@/lib/apollo'
 import { useQuery } from '@apollo/client'
@@ -28,6 +29,7 @@ import GET_PUBLICATION_COMMENTS from '@/graphql/publications/get-publication-com
 import { Comment, Maybe, PaginatedPublicationResult, Post, ReactionTypes } from '@/types/lens'
 
 const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
+	const router = useRouter()
 	const [reportOpen, setReportOpen] = useState<boolean>(false)
 	const { data: hasMirrored, mirrorPublication, loading: mirrorLoading } = useMirrorPublication(video?.id)
 	const { data: hasCollected, collectPublication, loading: collectLoading } = useCollectPublication(video?.id)
@@ -51,6 +53,31 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 	const comments = useMemo<Comment[] | null>(() => {
 		return commentData?.comments?.items?.filter(comment => !comment.hidden) as Comment[] | null
 	}, [commentData])
+
+	if (video && video?.metadata?.mainContentFocus != 'VIDEO') {
+		return (
+			<div className="flex-1 flex flex-col items-center justify-center">
+				<div className="text-center">
+					<p className="text-sm font-semibold text-red-600 uppercase tracking-wide">Not a Video</p>
+					<h1 className="mt-2 text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl">
+						There&apos;s no video here
+					</h1>
+					<p className="mt-2 text-base text-gray-500">
+						You&apos;re trying to load a Lens post we don&apos; support
+					</p>
+					<div className="mt-6">
+						<Link
+							target="_blank"
+							href={`https://open.withlens.app/post/${router.query.id}`}
+							className="text-base font-medium text-red-600 hover:text-red-500"
+						>
+							View on Lens<span aria-hidden="true"> &rarr;</span>
+						</Link>
+					</div>
+				</div>
+			</div>
+		)
+	}
 
 	return (
 		<>

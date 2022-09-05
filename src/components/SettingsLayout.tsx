@@ -30,12 +30,16 @@ const navigation = [
 	},
 ]
 
-const SettingsLayout: FC<{ title: string; children: ReactNode | ReactNode[] }> = ({ title, children }) => {
+const SettingsLayout: FC<{ title: string; children: ReactNode | ReactNode[]; className?: string }> = ({
+	title,
+	children,
+	className,
+}) => {
 	const router = useRouter()
 
 	return (
 		<>
-			<div className="h-full flex">
+			<div className={classNames(className, 'h-full flex')}>
 				<div className="flex-1 min-w-0 flex flex-col overflow-hidden">
 					<main className="flex-1 flex overflow-hidden">
 						<div className="flex-1 flex flex-col overflow-y-auto xl:overflow-hidden">

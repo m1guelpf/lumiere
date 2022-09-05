@@ -15,6 +15,7 @@ import {
 type WaitForActionProps = {
 	txId?: string
 	txHash?: string
+	expectsMetadata?: boolean
 	onError?: (reason: TransactionErrorReasons | string) => void
 	onIndex?: (receipt: TransactionReceipt) => void
 	onParse?: (receipt: TransactionReceipt) => void
@@ -114,7 +115,14 @@ export const hasTxBeenIndexed = ({ txId, txHash }) => {
 	})
 }
 
-const useWaitForAction = ({ txId, txHash, onError, onIndex, onParse }: WaitForActionProps): WaitForAction => {
+const useWaitForAction = ({
+	txId,
+	txHash,
+	onError,
+	onIndex,
+	onParse,
+	expectsMetadata = true,
+}: WaitForActionProps): WaitForAction => {
 	const {
 		data,
 		error: queryError,
@@ -134,7 +142,13 @@ const useWaitForAction = ({ txId, txHash, onError, onIndex, onParse }: WaitForAc
 			throw data.tx.reason
 		}
 
-		if (data.tx.indexed && onIndex) onIndex(data.tx.txReceipt)
+		if (data.tx.indexed && onIndex) {
+			onIndex(data.tx.txReceipt)
+		}
+		if (!expectsMetadata && data.tx.indexed && onParse) {
+			onParse(data.tx.txReceipt)
+			return
+		}
 		if (data.tx.metadataStatus?.status === PublicationMetadataStatusType.Success && onParse) {
 			onParse(data.tx.txReceipt)
 			return
@@ -182,7 +196,7 @@ const useWaitForAction = ({ txId, txHash, onError, onIndex, onParse }: WaitForAc
 					if (
 						tx?.__typename == 'TransactionIndexedResult' &&
 						tx?.indexed &&
-						tx?.metadataStatus?.status == PublicationMetadataStatusType.Success
+						(!expectsMetadata || tx?.metadataStatus?.status == PublicationMetadataStatusType.Success)
 					) {
 						return tx
 					}
@@ -193,7 +207,7 @@ const useWaitForAction = ({ txId, txHash, onError, onIndex, onParse }: WaitForAc
 				}
 			}
 		},
-		[txId, txHash]
+		[txId, txHash, expectsMetadata]
 	)
 
 	const resolveOnAction = useCallback(
