@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import format from 'date-fns/format'
 import Meta from '@/components/Meta'
+import { getVideo } from '@/lib/media'
 import { useRouter } from 'next/router'
 import { APP_NAME } from '@/lib/consts'
 import { nodeClient } from '@/lib/apollo'
@@ -54,7 +55,7 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 		return commentData?.comments?.items?.filter(comment => !comment.hidden) as Comment[] | null
 	}, [commentData])
 
-	if (video && video?.metadata?.mainContentFocus != 'VIDEO') {
+	if (video && video?.metadata?.mainContentFocus != 'VIDEO' && !getVideo(video?.metadata?.media)) {
 		return (
 			<div className="flex-1 flex flex-col items-center justify-center">
 				<div className="text-center">
