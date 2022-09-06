@@ -6,7 +6,6 @@ import { APP_NAME } from '@/lib/consts'
 import { nodeClient } from '@/lib/apollo'
 import { useQuery } from '@apollo/client'
 import Spinner from '@/components/Spinner'
-import { FC, useMemo, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import { linkify, shareLink } from '@/lib/utils'
 import NewComment from '@/components/NewComment'
@@ -17,6 +16,7 @@ import { getPostCover, getVideo } from '@/lib/media'
 import FollowButton from '@/components/FollowButton'
 import VerifiedIcon from '@/components/VerifiedIcon'
 import { GetStaticPaths, GetStaticProps } from 'next'
+import { FC, useEffect, useMemo, useState } from 'react'
 import StateAwareIcon from '@/components/StateAwareIcon'
 import { LensVideoRenderer } from '@/components/LensVideo'
 import WorldIdBadge from '@/components/Icons/WorldIdBadge'
@@ -27,7 +27,7 @@ import GET_PUBLICATION from '@/graphql/publications/get-publication'
 import useCollectPublication from '@/hooks/lens/useCollectPublication'
 import useReactToPublication from '@/hooks/lens/useReactToPublication'
 import GET_PUBLICATION_COMMENTS from '@/graphql/publications/get-publication-comments'
-import { Comment, Maybe, PaginatedPublicationResult, Post, ReactionTypes } from '@/types/lens'
+import { Comment, Maybe, Mirror, PaginatedPublicationResult, Post, ReactionTypes } from '@/types/lens'
 
 const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 	const router = useRouter()
@@ -41,6 +41,12 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 		downvotePublication,
 		loading: reactionLoading,
 	} = useReactToPublication(video?.id)
+
+	useEffect(() => {
+		if (!video || (video?.__typename as string) != 'Mirror') return
+
+		router.push(`/watch/${(video as unknown as Mirror).mirrorOf.id}`)
+	}, [video, router])
 
 	const {
 		data: commentData,

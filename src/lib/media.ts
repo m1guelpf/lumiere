@@ -24,6 +24,7 @@ export const resolveImageUrl = (media: MediaSet | NftImage): string => {
 }
 
 export const getVideo = (media: MediaSet[]): Media | null => {
+	if (!media) return
 	const video = media.find(({ original: { mimeType } }) => mimeType.startsWith('video'))?.original
 
 	if (!video) return

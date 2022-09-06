@@ -6,6 +6,13 @@ const GET_PUBLICATION = gql`
 			... on Post {
 				...PostFields
 			}
+			... on Mirror {
+				mirrorOf {
+					... on Post {
+						id
+					}
+				}
+			}
 		}
 	}
 
