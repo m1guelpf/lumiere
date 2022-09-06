@@ -6,7 +6,7 @@ const EXPLORE_PUBLICATIONS = gql`
 			request: {
 				limit: 28
 				publicationTypes: [POST]
-				sortCriteria: TOP_MIRRORED
+				sortCriteria: CURATED_PROFILES
 				metadata: { mainContentFocus: [VIDEO] }
 			}
 		) {

@@ -2353,6 +2353,7 @@ export type PublicationSignatureContextInput = {
 
 /** Publication sort criteria */
 export enum PublicationSortCriteria {
+	CuratedProfiles = 'CURATED_PROFILES',
 	Latest = 'LATEST',
 	TopCollected = 'TOP_COLLECTED',
 	TopCommented = 'TOP_COMMENTED',
@@ -2584,6 +2585,10 @@ export type QueryPublicationsArgs = {
 	request: PublicationsQueryRequest
 }
 
+export type QueryRecommendedProfilesArgs = {
+	options?: InputMaybe<RecommendedProfileOptions>
+}
+
 export type QueryRelArgs = {
 	request: RelRequest
 }
@@ -2634,6 +2639,11 @@ export type ReactionRequest = {
 export enum ReactionTypes {
 	Downvote = 'DOWNVOTE',
 	Upvote = 'UPVOTE',
+}
+
+export type RecommendedProfileOptions = {
+	/** If you wish to turn ML off */
+	disableML?: InputMaybe<Scalars['Boolean']>
 }
 
 export type ReferenceModule = FollowOnlyReferenceModuleSettings | UnknownReferenceModuleSettings
