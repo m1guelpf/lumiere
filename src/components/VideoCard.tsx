@@ -4,17 +4,16 @@ import { FC, useMemo } from 'react'
 import { Post } from '@/types/lens'
 import LensAvatar from './LensAvatar'
 import VerifiedIcon from './VerifiedIcon'
-import { normalizeUrl } from '@/lib/media'
 import Skeleton from 'react-loading-skeleton'
 import WorldIdBadge from './Icons/WorldIdBadge'
 import formatDistanceToNowStrict from 'date-fns/formatDistanceToNowStrict'
+import { getImageUrl, getPostCover, includesImage, normalizeUrl } from '@/lib/media'
 
 const VideoCard: FC<{ post?: Post; expanded?: boolean }> = ({ post, expanded = false }) => {
 	const coverImg = useMemo(() => {
 		if (!post) return
-		if (post.metadata.cover) return normalizeUrl(post.metadata.cover.original.url)
 
-		return `https://avatar.tobi.sh/${post.id}.png`
+		return getPostCover(post) ?? `https://avatar.tobi.sh/${post.id}.png`
 	}, [post])
 
 	return (

@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import format from 'date-fns/format'
 import Meta from '@/components/Meta'
-import { getVideo } from '@/lib/media'
 import { useRouter } from 'next/router'
 import { APP_NAME } from '@/lib/consts'
 import { nodeClient } from '@/lib/apollo'
@@ -14,6 +13,7 @@ import NewComment from '@/components/NewComment'
 import LensAvatar from '@/components/LensAvatar'
 import ReportModal from '@/components/ReportModal'
 import { formatDistanceToNowStrict } from 'date-fns'
+import { getPostCover, getVideo } from '@/lib/media'
 import FollowButton from '@/components/FollowButton'
 import VerifiedIcon from '@/components/VerifiedIcon'
 import { GetStaticPaths, GetStaticProps } from 'next'
@@ -83,6 +83,7 @@ const VideoPage: FC<{ video: Maybe<Post> }> = ({ video }) => {
 	return (
 		<>
 			<Meta
+				image={getPostCover(video)}
 				title={video && `${video.metadata.name} | ${APP_NAME}`}
 				description={video && video.metadata.description}
 			/>

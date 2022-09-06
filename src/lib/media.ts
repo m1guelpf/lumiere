@@ -1,4 +1,14 @@
-import { Media, MediaSet, NftImage } from '@/types/lens'
+import { Media, MediaSet, NftImage, Post } from '@/types/lens'
+
+export const includesImage = (media: MediaSet[]): boolean => {
+	return media.some(({ original: { mimeType } }) => mimeType.startsWith('image'))
+}
+
+export const getPostCover = (post: Post): string => {
+	if (!post) return
+	if (post.metadata.cover) return normalizeUrl(post.metadata.cover.original.url)
+	if (includesImage(post.metadata.media)) return getImageUrl(post.metadata.media)
+}
 
 export const getImageUrl = (media: MediaSet[]): string => {
 	const image = media.find(({ original: { mimeType } }) => mimeType.startsWith('image'))?.original
