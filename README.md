@@ -13,3 +13,7 @@ Open [http://localhost:4783](http://localhost:4783) with your browser to see the
 ## License
 
 This app is open-source and licensed under the MIT license. For more details, check the [License file](LICENSE).
+
+## Other Lens references
+
+For a step by step tutorial on building and querying on Lens Protocol, Alchemy has a comprehensive "[Building a Decentralized Twitter with Lens Protocol](https://docs.alchemy.com/docs/how-to-create-a-decentralized-twitter-with-lens-protocol)" quick-start guide. 
